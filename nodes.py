@@ -1,16 +1,16 @@
 """
 ComfyUI Prompt Tools - nodes.py
 
-PromptLinePick: picks one item from a multiline list using seed + channel.
+PromptLinePick: picks one item from a multiline list using seed + node ID.
 
 Unlike easy PromptLine which requires a manual 'max_rows' parameter
 (causing the last item to be wildly over-represented), this node
 automatically uses the actual list length for a perfectly uniform distribution.
 
-The 'channel' input solves the correlation problem that arises when using a
-single global seed across multiple lists: instead of manually managing prime
-modulos, just assign a unique channel number (0, 1, 2...) to each node.
-Internally uses sha256(seed:channel) % length for true independence.
+Each node instance has a unique ID assigned by ComfyUI (stable across
+executions). This ID is used as the channel discriminator internally via
+sha256(seed:node_id) % length, giving fully independent selections across
+all instances sharing the same seed — no manual channel management needed.
 """
 
 import hashlib
@@ -18,11 +18,11 @@ import hashlib
 
 class PromptLinePick:
     """
-    Picks one item from a multiline list, seeded and channel-isolated.
+    Picks one item from a multiline list, seeded and automatically isolated.
 
-    channel: assign a different integer to each instance of this node in your
-    workflow. Nodes with the same seed but different channels always produce
-    independent selections, regardless of list lengths.
+    Uses the node's own unique ID as a discriminator, so multiple instances
+    with the same seed always produce independent selections regardless of
+    list lengths — no prime modulos, no manual channel numbers.
     """
 
     @classmethod
@@ -38,19 +38,12 @@ class PromptLinePick:
                     "min": 0,
                     "max": 0xffffffffffffffff,
                 }),
-                "channel": ("INT", {
-                    "default": 0,
-                    "min": 0,
-                    "max": 9999,
-                    "tooltip": (
-                        "Assign a unique channel per node instance. "
-                        "Nodes sharing the same seed but with different channels "
-                        "produce fully independent selections."
-                    ),
-                }),
             },
             "optional": {
                 "remove_empty_lines": ("BOOLEAN", {"default": True}),
+            },
+            "hidden": {
+                "unique_id": "UNIQUE_ID",
             },
         }
 
@@ -59,7 +52,7 @@ class PromptLinePick:
     FUNCTION = "execute"
     CATEGORY = "utils/prompt"
 
-    def execute(self, text, seed, channel, remove_empty_lines=True):
+    def execute(self, text, seed, remove_empty_lines=True, unique_id=None):
         lines = text.split("\n")
 
         if remove_empty_lines:
@@ -70,9 +63,9 @@ class PromptLinePick:
         if not lines:
             return ("", 0)
 
-        # sha256(seed:channel) gives a uniform, deterministic hash.
-        # Different channels → fully independent selections, no primes needed.
-        digest = hashlib.sha256(f"{seed}:{channel}".encode()).hexdigest()
+        # sha256(seed:node_id) — node_id is unique per instance in the workflow,
+        # stable across executions, requires zero manual maintenance.
+        digest = hashlib.sha256(f"{seed}:{unique_id}".encode()).hexdigest()
         index = int(digest, 16) % len(lines)
 
         return (lines[index], index)
