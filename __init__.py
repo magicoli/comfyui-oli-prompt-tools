@@ -1,4 +1,8 @@
-from .nodes import NODE_CLASS_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS
+from .prompt_line_pick  import NODE_CLASS_MAPPINGS as _m1, NODE_DISPLAY_NAME_MAPPINGS as _n1
+from .video_frame_limit import NODE_CLASS_MAPPINGS as _m2, NODE_DISPLAY_NAME_MAPPINGS as _n2
+
+NODE_CLASS_MAPPINGS        = {**_m1, **_m2}
+NODE_DISPLAY_NAME_MAPPINGS = {**_n1, **_n2}
 
 WEB_DIRECTORY = "web"
 

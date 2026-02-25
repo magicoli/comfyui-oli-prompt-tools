@@ -1,10 +1,9 @@
 """
-ComfyUI Oli Prompt Tools - nodes.py
+OliPromptLinePick — fork of easy promptLine.
 
-OliPromptLinePick: fork of easy promptLine that replaces start_index + max_rows
-with a seed input. The item is picked via sha256(seed:node_id) % len(lines),
-giving a perfectly uniform distribution and full independence between instances
-— no prime modulos, no manual channel numbers needed.
+Replaces start_index + max_rows with a seed. Item is picked via
+sha256(seed:node_id) % len(lines): perfectly uniform distribution,
+fully independent between instances — no prime modulos needed.
 """
 
 import hashlib
@@ -51,8 +50,7 @@ class OliPromptLinePick:
         digest = hashlib.sha256(f"{seed}:{unique_id}".encode()).hexdigest()
         index = int(digest, 16) % len(lines)
 
-        selected = lines[index]
-        return (selected, selected)
+        return (lines[index], lines[index])
 
 
 NODE_CLASS_MAPPINGS = {
