@@ -50,7 +50,7 @@ class PromptLinePick:
     RETURN_TYPES = ("STRING", "INT")
     RETURN_NAMES = ("text", "index")
     FUNCTION = "execute"
-    CATEGORY = "utils/prompt"
+    CATEGORY = "Oli/prompt"
 
     def execute(self, text, seed, remove_empty_lines=True, unique_id=None):
         lines = text.split("\n")
@@ -76,5 +76,5 @@ NODE_CLASS_MAPPINGS = {
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "PromptLinePick": "Prompt Line Pick",
+    "PromptLinePick": "Oli - Prompt Line Pick",
 }
