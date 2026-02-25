@@ -1,0 +1,47 @@
+import { app } from "../../scripts/app.js";
+
+app.registerExtension({
+    name: "oli.promptTools",
+
+    async beforeRegisterNodeDef(nodeType, nodeData) {
+        if (nodeData.name !== "OliPromptLinePick") return;
+
+        const onAdded = nodeType.prototype.onAdded;
+        nodeType.prototype.onAdded = async function () {
+            onAdded?.apply(this, []);
+
+            const prompt_widget = this.widgets.find(w => w.name === "prompt");
+
+            this.addWidget("button", "get values from COMBO link", "", () => {
+                // The COMBO output is outputs[1]
+                const output_link = this.outputs[1]?.links?.length > 0
+                    ? this.outputs[1].links[0]
+                    : null;
+
+                if (!output_link) {
+                    alert("No COMBO link connected.");
+                    return;
+                }
+
+                const all_nodes = app.graph._nodes;
+                const target_node = all_nodes.find(n =>
+                    n.inputs?.find(input => input.link === output_link)
+                );
+
+                if (!target_node) {
+                    alert("Could not find connected node.");
+                    return;
+                }
+
+                const input = target_node.inputs.find(i => i.link === output_link);
+                const widget_name = input?.widget?.name;
+                const widget = target_node.widgets?.find(w => w.name === widget_name);
+                const values = widget?.options?.values;
+
+                if (values?.length) {
+                    prompt_widget.value = values.join("\n");
+                }
+            }, { serialize: false });
+        };
+    }
+});

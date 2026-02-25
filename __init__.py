@@ -1,5 +1,7 @@
 from .nodes import NODE_CLASS_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS
 
-__all__ = ["NODE_CLASS_MAPPINGS", "NODE_DISPLAY_NAME_MAPPINGS"]
+WEB_DIRECTORY = "web"
 
-print("\033[34m[ComfyUI Prompt Tools]\033[0m \033[92mLoaded\033[0m")
+__all__ = ["NODE_CLASS_MAPPINGS", "NODE_DISPLAY_NAME_MAPPINGS", "WEB_DIRECTORY"]
+
+print("\033[34m[ComfyUI Oli Prompt Tools]\033[0m \033[92mLoaded\033[0m")

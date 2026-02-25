@@ -1,35 +1,22 @@
 """
-ComfyUI Prompt Tools - nodes.py
+ComfyUI Oli Prompt Tools - nodes.py
 
-PromptLinePick: picks one item from a multiline list using seed + node ID.
-
-Unlike easy PromptLine which requires a manual 'max_rows' parameter
-(causing the last item to be wildly over-represented), this node
-automatically uses the actual list length for a perfectly uniform distribution.
-
-Each node instance has a unique ID assigned by ComfyUI (stable across
-executions). This ID is used as the channel discriminator internally via
-sha256(seed:node_id) % length, giving fully independent selections across
-all instances sharing the same seed — no manual channel management needed.
+OliPromptLinePick: fork of easy promptLine that replaces start_index + max_rows
+with a seed input. The item is picked via sha256(seed:node_id) % len(lines),
+giving a perfectly uniform distribution and full independence between instances
+— no prime modulos, no manual channel numbers needed.
 """
 
 import hashlib
 
 
-class PromptLinePick:
-    """
-    Picks one item from a multiline list, seeded and automatically isolated.
-
-    Uses the node's own unique ID as a discriminator, so multiple instances
-    with the same seed always produce independent selections regardless of
-    list lengths — no prime modulos, no manual channel numbers.
-    """
+class OliPromptLinePick:
 
     @classmethod
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "text": ("STRING", {
+                "prompt": ("STRING", {
                     "multiline": True,
                     "default": "item 1\nitem 2\nitem 3",
                 }),
@@ -38,8 +25,6 @@ class PromptLinePick:
                     "min": 0,
                     "max": 0xffffffffffffffff,
                 }),
-            },
-            "optional": {
                 "remove_empty_lines": ("BOOLEAN", {"default": True}),
             },
             "hidden": {
@@ -47,13 +32,13 @@ class PromptLinePick:
             },
         }
 
-    RETURN_TYPES = ("STRING", "INT")
-    RETURN_NAMES = ("text", "index")
+    RETURN_TYPES = ("STRING", "COMBO")
+    RETURN_NAMES = ("STRING", "COMBO")
     FUNCTION = "execute"
     CATEGORY = "Oli/prompt"
 
-    def execute(self, text, seed, remove_empty_lines=True, unique_id=None):
-        lines = text.split("\n")
+    def execute(self, prompt, seed, remove_empty_lines=True, unique_id=None):
+        lines = prompt.split("\n")
 
         if remove_empty_lines:
             lines = [line.strip() for line in lines if line.strip()]
@@ -61,20 +46,19 @@ class PromptLinePick:
             lines = [line.strip() for line in lines]
 
         if not lines:
-            return ("", 0)
+            return ("", "")
 
-        # sha256(seed:node_id) — node_id is unique per instance in the workflow,
-        # stable across executions, requires zero manual maintenance.
         digest = hashlib.sha256(f"{seed}:{unique_id}".encode()).hexdigest()
         index = int(digest, 16) % len(lines)
 
-        return (lines[index], index)
+        selected = lines[index]
+        return (selected, selected)
 
 
 NODE_CLASS_MAPPINGS = {
-    "PromptLinePick": PromptLinePick,
+    "OliPromptLinePick": OliPromptLinePick,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "PromptLinePick": "Oli - Prompt Line Pick",
+    "OliPromptLinePick": "Oli - Prompt Line Pick",
 }
