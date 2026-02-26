@@ -23,6 +23,7 @@ class OliPromptLinePick:
                     "default": 0,
                     "min": 0,
                     "max": 0xffffffffffffffff,
+                    "control_after_generate": "fixed",
                 }),
                 "remove_empty_lines": ("BOOLEAN", {"default": True}),
             },
