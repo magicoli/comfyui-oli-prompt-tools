@@ -103,7 +103,7 @@ class OliVideoFrameLimit:
     CATEGORY = "Oli/utils"
 
     def execute(self, width, height, duration, fps,
-                safety_margin=0.9, model=None):
+                safety_margin=0.95, model=None):
 
         requested_frames = max(1, round(duration * fps))
 
@@ -132,7 +132,7 @@ class OliVideoFrameLimit:
 
         info = (
             f"VRAM {vram_gb:.1f} GB  |  dim {hidden_dim} ({dim_source})\n"
-            f"requested {requested_frames} frames  →  capped {actual_frames} ({actual_duration:.1f}s)"
+            f"requested {requested_frames} frames  →  capped {actual_frames} ({actual_duration:.2f}s)"
         )
 
         return {

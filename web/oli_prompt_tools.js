@@ -1,4 +1,5 @@
 import { app } from "../../scripts/app.js";
+import { ComfyWidgets } from "../../scripts/widgets.js";
 
 app.registerExtension({
     name: "oli.promptTools",
@@ -48,11 +49,15 @@ app.registerExtension({
             const onAdded = nodeType.prototype.onAdded;
             nodeType.prototype.onAdded = function () {
                 onAdded?.apply(this, []);
-                // Text widget to display VRAM / frame info after execution
-                this._info_widget = this.addWidget(
-                    "text", "info", "", () => {}, { serialize: false }
-                );
-                this._info_widget.disabled = true;
+                // Use ComfyWidgets STRING so the textarea is a real DOM element
+                // and updates correctly after execution (same approach as ShowText)
+                const w = ComfyWidgets["STRING"](
+                    this, "info", ["STRING", { multiline: true }], app
+                ).widget;
+                w.inputEl.readOnly = true;
+                w.inputEl.style.opacity = 0.7;
+                w.value = "—";
+                this._info_widget = w;
             };
 
             const onExecuted = nodeType.prototype.onExecuted;
@@ -60,6 +65,9 @@ app.registerExtension({
                 onExecuted?.apply(this, [message]);
                 if (message?.text?.[0] !== undefined && this._info_widget) {
                     this._info_widget.value = message.text[0];
+                    // Trigger DOM update and resize to fit new content
+                    this._info_widget.inputEl?.dispatchEvent(new Event("input"));
+                    this.onResize?.(this.size);
                 }
             };
         }
