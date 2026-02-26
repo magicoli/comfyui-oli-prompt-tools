@@ -10,7 +10,7 @@ Where:
     TENSOR_COPIES = 5  (Q, K, V, attention output, residual — calibrated
                         against empirical data: gives ~240 bytes/pixel for
                         Wan 1.3B hidden_dim=1536, close to the empirical 256)
-    tokens_per_frame = (width // 8) × (height // 8)
+    tokens_per_frame = (width ÷ 8) × (height ÷ 8)
     hidden_dim       = auto-detected from the connected model
     × 2              = float16 bytes
 
@@ -23,16 +23,13 @@ Why total VRAM (not free VRAM):
 import torch
 
 TENSOR_COPIES        = 5
-TEMPORAL_COMPRESSION = 4  # n*4+1 frame counts (Wan, HunyuanVideo, CogVideoX…)
+TEMPORAL_COMPRESSION = 4  # frame counts must be n*4+1 (Wan, HunyuanVideo, CogVideoX…)
 
 
-def _get_hidden_dim(model):
-    """
-    Introspect hidden dimension from a ComfyUI MODEL object.
-    Returns None if detection fails (caller should use a fallback).
-    """
+def _get_model_info(model):
+    """Return (class_name, hidden_dim, debug_lines) from a ComfyUI MODEL object."""
     if model is None:
-        return None
+        return None, None, []
 
     # Unwrap ModelPatcher layers
     m = model
@@ -41,7 +38,9 @@ def _get_hidden_dim(model):
         if sub is not None:
             m = sub
 
-    # Build list of objects to search
+    model_name = type(m).__name__
+
+    # Build list of objects to search for hidden_dim
     search = [m]
     for attr in ("diffusion_model", "transformer", "model", "net", "backbone"):
         sub = getattr(m, attr, None)
@@ -51,20 +50,28 @@ def _get_hidden_dim(model):
     DIM_ATTRS = ("hidden_size", "dim", "embed_dim", "hidden_dim",
                  "d_model", "inner_dim", "width", "model_dim")
 
+    found = {}  # attr -> value, deduplicated
     for obj in search:
-        # Direct attribute
+        obj_name = type(obj).__name__
         for attr in DIM_ATTRS:
             val = getattr(obj, attr, None)
             if isinstance(val, int) and 64 <= val <= 32768:
-                return val
-        # Via config sub-object
+                key = f"{obj_name}.{attr}"
+                found[key] = val
         for cfg_attr in ("config", "model_config"):
             cfg = getattr(obj, cfg_attr, None)
             if cfg:
                 for attr in DIM_ATTRS:
                     val = getattr(cfg, attr, None)
                     if isinstance(val, int) and 64 <= val <= 32768:
-                        return val
+                        key = f"{obj_name}.{cfg_attr}.{attr}"
+                        found[key] = val
+
+    debug_lines = [f"  {k} = {v}" for k, v in found.items()]
+
+    if found:
+        hidden_dim = next(iter(found.values()))
+        return model_name, hidden_dim, debug_lines
 
     # Fallback: estimate from parameter count
     # Transformer: params ≈ 12 × num_layers × hidden_dim²  (typical L ≈ 28)
@@ -72,9 +79,10 @@ def _get_hidden_dim(model):
         n = sum(p.numel() for p in m.parameters())
         est = int((n / (12 * 28)) ** 0.5)
         standards = (256, 512, 768, 1024, 1280, 1536, 2048, 3072, 4096, 5120, 8192)
-        return min(standards, key=lambda x: abs(x - est))
+        hidden_dim = min(standards, key=lambda x: abs(x - est))
+        return model_name, hidden_dim, [f"  param count estimate: {hidden_dim}"]
     except Exception:
-        return None
+        return model_name, None, []
 
 
 class OliVideoFrameLimit:
@@ -86,7 +94,7 @@ class OliVideoFrameLimit:
                 "width":    ("INT",   {"default": 832,  "min": 64,  "max": 8192,   "step": 8}),
                 "height":   ("INT",   {"default": 480,  "min": 64,  "max": 8192,   "step": 8}),
                 "fps":      ("FLOAT", {"default": 16.0, "min": 1.0, "max": 120.0,  "step": 1.0}),
-                "duration": ("FLOAT", {"default": 10.0,  "min": 0.1, "max": 3600.0, "step": 0.1}),
+                "duration": ("FLOAT", {"default": 10.0, "min": 0.1, "max": 3600.0, "step": 0.1}),
                 "safety_margin": ("FLOAT", {
                     "default": 0.95, "min": 0.5, "max": 1.0, "step": 0.05,
                     "tooltip": "Fraction of total VRAM to budget (0.95 = 5% headroom).",
@@ -97,8 +105,8 @@ class OliVideoFrameLimit:
             },
         }
 
-    RETURN_TYPES = ("INT",           "FLOAT")
-    RETURN_NAMES = ("capped_frames", "capped_duration")
+    RETURN_TYPES = ("INT",   "INT",    "INT",    "FLOAT", "FLOAT")
+    RETURN_NAMES = ("width", "height", "frames", "fps",   "duration")
     OUTPUT_NODE = True
     FUNCTION = "execute"
     CATEGORY = "Oli/utils"
@@ -111,39 +119,47 @@ class OliVideoFrameLimit:
         if not torch.cuda.is_available():
             info = "CUDA not available — no frame limit applied."
             return {"ui": {"text": [info]},
-                    "result": (requested_frames, float(requested_frames / fps))}
+                    "result": (width, height, requested_frames, float(fps), float(duration))}
 
-        total_vram   = torch.cuda.get_device_properties(0).total_memory
-        vram_gb      = total_vram / (1024 ** 3)
-        vram_budget  = total_vram * safety_margin
+        total_vram  = torch.cuda.get_device_properties(0).total_memory
+        vram_gb     = total_vram / (1024 ** 3)
+        vram_budget = total_vram * safety_margin
 
-        hidden_dim = _get_hidden_dim(model)
+        model_name, hidden_dim, debug_lines = _get_model_info(model)
         if hidden_dim is None:
-            hidden_dim  = 1536
-            dim_source  = "fallback (connect model for auto-detection)"
+            hidden_dim = 1536
+            model_label = "generic"
         else:
-            dim_source  = "auto-detected"
+            model_label = model_name or "connected"
 
-        tokens_per_frame = (width // 8) * (height // 8)
-        bytes_per_frame  = TENSOR_COPIES * tokens_per_frame * hidden_dim * 2
+        spatial_tokens = (width // 8) * (height // 8)
 
-        max_frames    = max(1, int(vram_budget / bytes_per_frame))
-        actual_frames = min(requested_frames, max_frames)
+        # Peak VRAM scales with total latent tokens (spatial × latent_frames).
+        # The 3D VAE compresses time by TEMPORAL_COMPRESSION before attention,
+        # so physical frames are not the right unit for the VRAM budget.
+        bytes_per_latent_frame = TENSOR_COPIES * spatial_tokens * hidden_dim * 2
 
-        # Snap down to nearest valid frame count: n*TEMPORAL_COMPRESSION+1
-        n = (actual_frames - 1) // TEMPORAL_COMPRESSION
-        actual_frames = max(1, n * TEMPORAL_COMPRESSION + 1)
+        def snap(f):
+            n = (f - 1) // TEMPORAL_COMPRESSION
+            return max(1, n * TEMPORAL_COMPRESSION + 1)
 
-        actual_duration = actual_frames / fps
+        max_latent_frames   = max(1, int(vram_budget / bytes_per_latent_frame))
+        max_physical_frames = (max_latent_frames - 1) * TEMPORAL_COMPRESSION + 1
+        actual_frames       = snap(min(requested_frames, max_physical_frames))
+        actual_duration     = actual_frames / fps
 
+        debug_block = ("\n" + "\n".join(debug_lines)) if debug_lines else ""
         info = (
-            f"VRAM {vram_gb:.1f} GB  |  dim {hidden_dim} ({dim_source})\n"
-            f"requested {requested_frames} frames  →  capped {actual_frames} ({actual_duration:.2f}s)"
+            f"CUDA VRAM: {vram_gb:.1f} GB\n"
+            f"model: {model_label}{debug_block}\n"
+            f"dim: {hidden_dim}\n"
+            f"requested: {requested_frames} frames\n"
+            f"capped: {actual_frames} frames ({actual_duration:.2f}s)"
         )
 
         return {
             "ui": {"text": [info]},
-            "result": (actual_frames, float(actual_duration)),
+            "result": (width, height, actual_frames, float(fps), float(actual_duration)),
         }
 
 

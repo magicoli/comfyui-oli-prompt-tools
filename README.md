@@ -53,7 +53,9 @@ The node displays detected VRAM, hidden dim, requested frames and capped frames 
 | safety_margin | FLOAT | Fraction of total VRAM to budget (default 0.95) |
 | model | MODEL | Optional — enables hidden_dim auto-detection |
 
-**Outputs:** `capped_frames` (INT), `capped_duration` (FLOAT)
+**Outputs:** `width` (INT), `height` (INT), `frames` (INT), `fps` (FLOAT), `duration` (FLOAT)
+
+The node displays detected VRAM, model name, hidden dim, requested and capped frames directly in the canvas after each execution — making it usable as a standalone config panel.
 
 ## Installation
 
