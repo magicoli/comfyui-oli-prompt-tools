@@ -148,10 +148,9 @@ class OliVideoFrameLimit:
         actual_frames       = snap(min(requested_frames, max_physical_frames))
         actual_duration     = actual_frames / fps
 
-        debug_block = ("\n" + "\n".join(debug_lines)) if debug_lines else ""
         info = (
             f"CUDA VRAM: {vram_gb:.1f} GB\n"
-            f"model: {model_label}{debug_block}\n"
+            f"model: {model_label}\n"
             f"dim: {hidden_dim}\n"
             f"requested: {requested_frames} frames\n"
             f"capped: {actual_frames} frames ({actual_duration:.2f}s)"

@@ -75,11 +75,13 @@ app.registerExtension({
 				w.inputEl.readOnly = true;
 				w.inputEl.style.opacity = 0.7;
 				// 5-line placeholder so the node frame sizes itself correctly
-				w.value = "CUDA VRAM: —\nmodel: —\ndim: —\nrequested: — frames\ncapped: — frames";
+				w.value =
+					"CUDA VRAM: —\nmodel: —\ndim: —\nrequested: — frames\ncapped: — frames";
 				this._info_widget = w;
 				requestAnimationFrame(() => {
 					w.inputEl.dispatchEvent(new Event("input"));
-					this.setSize(this.computeSize());
+					const sz = this.computeSize();
+					this.setSize([sz[0], sz[1] + 30]); // +30px for 2 extra lines
 					app.graph.setDirtyCanvas(true, true);
 				});
 			};
