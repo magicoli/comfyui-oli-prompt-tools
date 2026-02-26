@@ -22,7 +22,8 @@ Why total VRAM (not free VRAM):
 
 import torch
 
-TENSOR_COPIES = 5
+TENSOR_COPIES        = 5
+TEMPORAL_COMPRESSION = 4  # n*4+1 frame counts (Wan, HunyuanVideo, CogVideoX…)
 
 
 def _get_hidden_dim(model):
@@ -128,6 +129,11 @@ class OliVideoFrameLimit:
 
         max_frames    = max(1, int(vram_budget / bytes_per_frame))
         actual_frames = min(requested_frames, max_frames)
+
+        # Snap down to nearest valid frame count: n*TEMPORAL_COMPRESSION+1
+        n = (actual_frames - 1) // TEMPORAL_COMPRESSION
+        actual_frames = max(1, n * TEMPORAL_COMPRESSION + 1)
+
         actual_duration = actual_frames / fps
 
         info = (
