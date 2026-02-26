@@ -59,5 +59,5 @@ NODE_CLASS_MAPPINGS = {
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "OliPromptLinePick": "Oli - Prompt Line Pick",
+    "OliPromptLinePick": "Prompt Line Pick (Oli)",
 }
