@@ -84,11 +84,11 @@ class OliVideoFrameLimit:
             "required": {
                 "width":    ("INT",   {"default": 832,  "min": 64,  "max": 8192,   "step": 8}),
                 "height":   ("INT",   {"default": 480,  "min": 64,  "max": 8192,   "step": 8}),
-                "duration": ("FLOAT", {"default": 5.0,  "min": 0.1, "max": 3600.0, "step": 0.1}),
-                "fps":      ("FLOAT", {"default": 24.0, "min": 1.0, "max": 120.0,  "step": 0.5}),
+                "fps":      ("FLOAT", {"default": 16.0, "min": 1.0, "max": 120.0,  "step": 1.0}),
+                "duration": ("FLOAT", {"default": 10.0,  "min": 0.1, "max": 3600.0, "step": 0.1}),
                 "safety_margin": ("FLOAT", {
-                    "default": 0.9, "min": 0.5, "max": 1.0, "step": 0.05,
-                    "tooltip": "Fraction of total VRAM to budget (0.9 = 10% headroom).",
+                    "default": 0.95, "min": 0.5, "max": 1.0, "step": 0.05,
+                    "tooltip": "Fraction of total VRAM to budget (0.95 = 5% headroom).",
                 }),
             },
             "optional": {
@@ -146,5 +146,5 @@ NODE_CLASS_MAPPINGS = {
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "OliVideoFrameLimit": "Oli - Video Frame Limit",
+    "OliVideoFrameLimit": "Video Frame Limit (Oli)",
 }
