@@ -1,0 +1,11 @@
+[project]
+name = "comfyui-oli-prompt-tools"
+version = "1.0.0"
+description = "Seed-based prompt line picker and VRAM-aware video frame limiter for ComfyUI"
+license = { text = "AGPL-3.0" }
+requires-python = ">=3.9"
+
+[tool.comfy]
+PublisherId = "magicoli"
+DisplayName = "Oli Prompt Tools"
+Icon = ""
