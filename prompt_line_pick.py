@@ -17,7 +17,7 @@ class OliPromptLinePick:
             "required": {
                 "prompt": ("STRING", {
                     "multiline": True,
-                    "default": "item 1\nitem 2\nitem 3",
+                    "default": "prompt 1\nprompt 2\nprompt3",
                 }),
                 "seed": ("INT", {
                     "default": 0,

@@ -1,4 +1,4 @@
-# ComfyUI Oli Prompt Tools
+# Oli Prompt Tools
 
 Custom ComfyUI nodes for prompt selection and video workflow utilities.
 

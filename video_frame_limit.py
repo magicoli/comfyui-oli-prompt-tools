@@ -114,7 +114,7 @@ class OliVideoFrameLimit:
     def execute(self, width, height, duration, fps,
                 safety_margin=0.95, model=None):
 
-        requested_frames = max(1, round(duration * fps))
+        requested_frames = max(1, round(duration * fps) + 1)  # +1: reference frame
 
         if not torch.cuda.is_available():
             info = "CUDA not available — no frame limit applied."
@@ -126,7 +126,8 @@ class OliVideoFrameLimit:
         vram_budget = total_vram * safety_margin
 
         model_name, hidden_dim, debug_lines = _get_model_info(model)
-        if hidden_dim is None:
+        dim_detected = hidden_dim is not None
+        if not dim_detected:
             hidden_dim = 1536
             model_label = "generic"
         else:
@@ -134,19 +135,24 @@ class OliVideoFrameLimit:
 
         spatial_tokens = (width // 8) * (height // 8)
 
-        # Peak VRAM scales with total latent tokens (spatial × latent_frames).
-        # The 3D VAE compresses time by TEMPORAL_COMPRESSION before attention,
-        # so physical frames are not the right unit for the VRAM budget.
-        bytes_per_latent_frame = TENSOR_COPIES * spatial_tokens * hidden_dim * 2
-
         def snap(f):
             n = (f - 1) // TEMPORAL_COMPRESSION
             return max(1, n * TEMPORAL_COMPRESSION + 1)
 
-        max_latent_frames   = max(1, int(vram_budget / bytes_per_latent_frame))
-        max_physical_frames = (max_latent_frames - 1) * TEMPORAL_COMPRESSION + 1
-        actual_frames       = snap(min(requested_frames, max_physical_frames))
-        actual_duration     = actual_frames / fps
+        if dim_detected:
+            # Known model: the 3D VAE compresses TEMPORAL_COMPRESSION physical frames
+            # into one latent frame before attention, so budget is in latent-frame units.
+            bytes_per_latent_frame = TENSOR_COPIES * spatial_tokens * hidden_dim * 2
+            max_latent_frames   = max(1, int(vram_budget / bytes_per_latent_frame))
+            max_physical_frames = (max_latent_frames - 1) * TEMPORAL_COMPRESSION + 1
+        else:
+            # Generic fallback: no temporal compression assumed; calibrated at
+            # ~256 bytes/pixel for hidden_dim=1536, matching empirical data.
+            bytes_per_frame = TENSOR_COPIES * spatial_tokens * hidden_dim * 2
+            max_physical_frames = max(1, int(vram_budget / bytes_per_frame))
+
+        actual_frames   = snap(min(requested_frames, max_physical_frames))
+        actual_duration = (actual_frames - 1) / fps  # -1: reference frame
 
         info = (
             f"CUDA VRAM: {vram_gb:.1f} GB\n"
