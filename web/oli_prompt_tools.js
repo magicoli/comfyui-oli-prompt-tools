@@ -60,6 +60,38 @@ app.registerExtension({
 			};
 		}
 
+		if (nodeData.name === "OliModelInfo") {
+			const onAdded = nodeType.prototype.onAdded;
+			nodeType.prototype.onAdded = function () {
+				onAdded?.apply(this, []);
+				const w = ComfyWidgets["STRING"](
+					this,
+					"model_class",
+					["STRING", { multiline: true }],
+					app,
+				).widget;
+				w.inputEl.readOnly = true;
+				w.inputEl.style.opacity = 0.7;
+				w.value = "—";
+				this._name_widget = w;
+				requestAnimationFrame(() => {
+					w.inputEl.dispatchEvent(new Event("input"));
+					app.graph.setDirtyCanvas(true, true);
+				});
+			};
+
+			const onExecuted = nodeType.prototype.onExecuted;
+			nodeType.prototype.onExecuted = function (message) {
+				onExecuted?.apply(this, [message]);
+				if (message?.text?.[0] !== undefined && this._name_widget) {
+					this._name_widget.value = message.text[0];
+					this._name_widget.inputEl?.dispatchEvent(
+						new Event("input"),
+					);
+				}
+			};
+		}
+
 		if (nodeData.name === "OliVideoFrameLimit") {
 			const onAdded = nodeType.prototype.onAdded;
 			nodeType.prototype.onAdded = function () {
