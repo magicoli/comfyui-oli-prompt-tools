@@ -1,9 +1,10 @@
 from .prompt_line_pick  import NODE_CLASS_MAPPINGS as _m1, NODE_DISPLAY_NAME_MAPPINGS as _n1
 from .video_frame_limit import NODE_CLASS_MAPPINGS as _m2, NODE_DISPLAY_NAME_MAPPINGS as _n2
 from .model_name        import NODE_CLASS_MAPPINGS as _m3, NODE_DISPLAY_NAME_MAPPINGS as _n3  # OliModelInfo
+from .oli_lora_loader   import NODE_CLASS_MAPPINGS as _m4, NODE_DISPLAY_NAME_MAPPINGS as _n4  # OliLoraLoader
 
-NODE_CLASS_MAPPINGS        = {**_m1, **_m2, **_m3}
-NODE_DISPLAY_NAME_MAPPINGS = {**_n1, **_n2, **_n3}
+NODE_CLASS_MAPPINGS        = {**_m1, **_m2, **_m3, **_m4}
+NODE_DISPLAY_NAME_MAPPINGS = {**_n1, **_n2, **_n3, **_n4}
 
 WEB_DIRECTORY = "web"
 
