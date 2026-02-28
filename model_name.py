@@ -9,6 +9,27 @@ _DIM_ATTRS = (
 )
 
 
+def _safe_getattr(obj, attr, default=None):
+    """Get attribute without triggering ComfyUI model_config __getattr__ warnings."""
+    try:
+        d = object.__getattribute__(obj, "__dict__")
+        if attr in d:
+            return d[attr]
+    except (AttributeError, TypeError):
+        pass
+    for cls in type(obj).__mro__:
+        if attr in cls.__dict__:
+            v = cls.__dict__[attr]
+            if isinstance(v, property):
+                try:
+                    return v.fget(obj)
+                except Exception:
+                    pass
+            elif not callable(v) and not isinstance(v, (staticmethod, classmethod)):
+                return v
+    return default
+
+
 def _count_params(obj):
     try:
         n = sum(p.numel() for p in obj.parameters())
@@ -29,14 +50,14 @@ def _find_dim(obj):
             search.append(sub)
     for o in search:
         for attr in _DIM_ATTRS:
-            val = getattr(o, attr, None)
+            val = _safe_getattr(o, attr)
             if isinstance(val, int) and 64 <= val <= 32768:
                 return val
         for cfg_attr in ("config", "model_config"):
-            cfg = getattr(o, cfg_attr, None)
+            cfg = _safe_getattr(o, cfg_attr)
             if cfg:
                 for attr in _DIM_ATTRS:
-                    val = getattr(cfg, attr, None)
+                    val = _safe_getattr(cfg, attr)
                     if isinstance(val, int) and 64 <= val <= 32768:
                         return val
     return None

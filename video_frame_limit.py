@@ -26,6 +26,32 @@ TENSOR_COPIES        = 5
 TEMPORAL_COMPRESSION = 4  # frame counts must be n*4+1 (Wan, HunyuanVideo, CogVideoX…)
 
 
+def _safe_getattr(obj, attr, default=None):
+    """Get attribute without triggering ComfyUI model_config __getattr__ warnings.
+
+    ComfyUI's model config objects log a WARNING for every attribute that doesn't
+    exist, even when accessed via getattr(obj, attr, None). This helper checks
+    __dict__ and the class hierarchy directly, bypassing __getattr__ entirely.
+    """
+    try:
+        d = object.__getattribute__(obj, "__dict__")
+        if attr in d:
+            return d[attr]
+    except (AttributeError, TypeError):
+        pass
+    for cls in type(obj).__mro__:
+        if attr in cls.__dict__:
+            v = cls.__dict__[attr]
+            if isinstance(v, property):
+                try:
+                    return v.fget(obj)
+                except Exception:
+                    pass
+            elif not callable(v) and not isinstance(v, (staticmethod, classmethod)):
+                return v
+    return default
+
+
 def _get_model_info(model):
     """Return (class_name, hidden_dim, debug_lines) from a ComfyUI MODEL object."""
     if model is None:
@@ -54,15 +80,15 @@ def _get_model_info(model):
     for obj in search:
         obj_name = type(obj).__name__
         for attr in DIM_ATTRS:
-            val = getattr(obj, attr, None)
+            val = _safe_getattr(obj, attr)
             if isinstance(val, int) and 64 <= val <= 32768:
                 key = f"{obj_name}.{attr}"
                 found[key] = val
         for cfg_attr in ("config", "model_config"):
-            cfg = getattr(obj, cfg_attr, None)
+            cfg = _safe_getattr(obj, cfg_attr)
             if cfg:
                 for attr in DIM_ATTRS:
-                    val = getattr(cfg, attr, None)
+                    val = _safe_getattr(cfg, attr)
                     if isinstance(val, int) and 64 <= val <= 32768:
                         key = f"{obj_name}.{cfg_attr}.{attr}"
                         found[key] = val
