@@ -4,9 +4,10 @@ Custom ComfyUI nodes for prompt selection and video workflow utilities.
 
 ## Nodes
 
-### Prompt Line Pick (Oli)
+- **Prompt Line Pick**: A seed-driven fork of [easy promptLine](https://github.com/yolain/ComfyUI-Easy-Use).
+- **Video Frame Limit**: Caps video generation duration to avoid VRAM out-of-memory crashes.
 
-A seed-driven fork of [easy promptLine](https://github.com/yolain/ComfyUI-Easy-Use).
+### Prompt Line Pick (Oli)
 
 Replaces `start_index + max_rows` with a single **seed** input. The selected line is determined by `sha256(seed:node_id) % len(lines)`, which gives:
 
