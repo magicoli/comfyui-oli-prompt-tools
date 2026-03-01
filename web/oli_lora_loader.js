@@ -240,6 +240,7 @@ class OliLoraRowWidget {
 
 	get value() { return this._value; }
 	set value(v) {
+		if (v === undefined) return;  // ignore accidental resets from LiteGraph widget restore
 		this._value = (v && typeof v === "object")
 			? { on: true, lora: null, strength: 1.0, ...v }
 			: { on: true, lora: null, strength: 1.0 };
@@ -460,10 +461,9 @@ app.registerExtension({
 			for (const v of info.widgets_values ?? []) {
 				if (v && typeof v === "object" && "lora" in v) _addLoraRow(this, v);
 			}
-			const rest = (info.widgets_values ?? []).filter(
-				v => !(v && typeof v === "object" && "lora" in v),
-			);
-			_configure?.apply(this, [{ ...info, widgets_values: rest }]);
+			// Pass widgets_values: undefined so LiteGraph's configure does NOT attempt
+			// to re-apply widget values by index — we've already restored them above.
+			_configure?.apply(this, [{ ...info, widgets_values: undefined }]);
 		};
 
 		// Update compat dots after execution
