@@ -115,30 +115,18 @@ class OliLoraLoader:
         return {
             "required": {},
             "optional": _FlexibleInputs(_any, {
+                "lora_stack": ("LORA_STACK",),
                 "model":      ("MODEL",),
                 "clip":       ("CLIP",),
-                "lora_stack": ("LORA_STACK",),
             }),
-            "hidden": {
-                "unique_id":    "UNIQUE_ID",
-                "extra_pnginfo": "EXTRA_PNGINFO",
-            },
         }
 
-    RETURN_TYPES = ("MODEL", "CLIP", "LORA_STACK", "STRING")
-    RETURN_NAMES = ("MODEL", "CLIP", "lora_stack", "label")
+    RETURN_TYPES = ("LORA_STACK", "MODEL", "CLIP")
+    RETURN_NAMES = ("lora_stack", "MODEL", "CLIP")
     FUNCTION     = "load_loras"
     OUTPUT_NODE  = True   # needed to return compat info to the JS front-end
 
-    def load_loras(self, model=None, clip=None, lora_stack=None,
-                   unique_id=None, extra_pnginfo=None, **kwargs):
-        # Resolve this node's editable title from the workflow JSON
-        label = ""
-        if extra_pnginfo and unique_id:
-            for node in (extra_pnginfo.get("workflow") or {}).get("nodes", []):
-                if str(node.get("id")) == str(unique_id):
-                    label = node.get("title") or ""
-                    break
+    def load_loras(self, model=None, clip=None, lora_stack=None, **kwargs):
         compat    = {}              # filename → True | False | None (disabled)
         out_stack = list(lora_stack) if lora_stack else []
 
@@ -203,7 +191,7 @@ class OliLoraLoader:
 
         return {
             "ui":     {"compat": [compat]},
-            "result": (model, clip, out_stack),
+            "result": (out_stack, model, clip),
         }
 
 
