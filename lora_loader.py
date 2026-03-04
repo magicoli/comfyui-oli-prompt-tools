@@ -115,6 +115,7 @@ class OliLoraLoader:
         return {
             "required": {},
             "optional": _FlexibleInputs(_any, {
+                "enable":     ("BOOLEAN", {"default": True}),
                 "lora_stack": ("LORA_STACK",),
                 "model":      ("MODEL",),
                 "clip":       ("CLIP",),
@@ -126,7 +127,14 @@ class OliLoraLoader:
     FUNCTION     = "load_loras"
     OUTPUT_NODE  = True   # needed to return compat info to the JS front-end
 
-    def load_loras(self, model=None, clip=None, lora_stack=None, **kwargs):
+    def load_loras(self, enable=True, model=None, clip=None, lora_stack=None, **kwargs):
+        # Pass-through mode: return inputs unchanged, no lora applied
+        if not enable:
+            return {
+                "ui":     {"compat": [{}]},
+                "result": (list(lora_stack) if lora_stack else [], model, clip),
+            }
+
         compat    = {}              # filename → True | False | None (disabled)
         out_stack = list(lora_stack) if lora_stack else []
 

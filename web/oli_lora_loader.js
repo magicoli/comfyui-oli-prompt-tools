@@ -202,71 +202,6 @@ function showLoraSelector(screenX, screenY, loras, callback, current = null) {
 	setTimeout(() => document.addEventListener("pointerdown", outsideClose, true), 0);
 }
 
-// ── Header widget (Toggle All) ────────────────────────────────────────────────
-
-class OliLoraHeaderWidget {
-	constructor() {
-		this.name    = "_oli_header";
-		this.type    = "custom";
-		this.y       = 0;
-		this.last_y  = 0;
-		this.options = { serialize: false };
-		this._rToggle = null;
-	}
-
-	computeSize(width) {
-		return [width, (this._node && _getLoraWidgets(this._node).length > 0) ? ROW_H : 0];
-	}
-
-	draw(ctx, node, width, posY, height) {
-		this.last_y = posY;
-		const loraWidgets = _getLoraWidgets(node);
-		if (!loraWidgets.length) return;
-
-		const mid = posY + height / 2;
-		ctx.save();
-
-		const allOn  = loraWidgets.every(w => w._value.on);
-		const allOff = loraWidgets.every(w => !w._value.on);
-		const state  = allOn ? true : allOff ? false : null;
-
-		// Toggle-all pill
-		const tw = 90, th = height - 4;
-		const tx = PAD, ty = posY + 2;
-		ctx.fillStyle = state === true ? "#3a6a3a" : state === false ? "#444" : "#554";
-		ctx.beginPath();
-		ctx.roundRect(tx, ty, tw, th, 3);
-		ctx.fill();
-		ctx.fillStyle = "#bbb";
-		ctx.font = `${Math.round(height * 0.55)}px sans-serif`;
-		ctx.textAlign   = "center";
-		ctx.textBaseline = "middle";
-		ctx.fillText("Toggle All", tx + tw / 2, mid);
-		this._rToggle = [tx, ty, tw, th];
-
-		// Column labels
-		ctx.globalAlpha = 0.5;
-		ctx.fillStyle   = LiteGraph.WIDGET_TEXT_COLOR ?? "#aaa";
-		ctx.textAlign   = "right";
-		ctx.fillText("strength", width - PAD - 14 - 13 - 36 - 13 - 4, mid);
-
-		ctx.restore();
-	}
-
-	mouse(event, pos, node) {
-		if (event.type === "pointerup" && this._rToggle && hit(pos, ...this._rToggle)) {
-			const loraWidgets = _getLoraWidgets(node);
-			const allOn = loraWidgets.every(w => w._value.on);
-			for (const w of loraWidgets) w._value.on = !allOn;
-			node.setDirtyCanvas(true);
-			return true;
-		}
-		return false;
-	}
-
-	serializeValue() { return undefined; }
-}
-
 // ── Lora row widget ───────────────────────────────────────────────────────────
 
 class OliLoraRowWidget {
@@ -488,6 +423,9 @@ app.registerExtension({
 
 		const _computeSize = nodeType.prototype.computeSize;
 		nodeType.prototype.computeSize = function () {
+			// Show the enable widget only when there are lora rows
+			const enableWidget = this.widgets?.find(w => w.name === "enable");
+			if (enableWidget) enableWidget.hidden = _getLoraWidgets(this).length === 0;
 			const s = _computeSize ? _computeSize.apply(this, arguments) : [MIN_W, 60];
 			s[0] = Math.max(s[0], MIN_W);
 			return s;
@@ -499,9 +437,6 @@ app.registerExtension({
 			_onNodeCreated?.apply(this, arguments);
 			this.serialize_widgets = true;
 			this._loraCounter = 0;
-			const headerWidget = new OliLoraHeaderWidget();
-			this.addCustomWidget(headerWidget);
-			headerWidget._node = this;
 			this._addBtn = this.addWidget("button", "➕ Add LoRA", "", _noop, { serialize: false });
 			// Override callback with the one that receives the event
 			this._addBtn.callback = (v, canvas, node, pos, e) => _openAddSelector(e, node);
@@ -516,6 +451,12 @@ app.registerExtension({
 			this._loraCounter = 0;
 			for (const v of info.widgets_values ?? []) {
 				if (v && typeof v === "object" && "lora" in v) _addLoraRow(this, v);
+			}
+			// Restore enable widget value (the only top-level boolean in widgets_values)
+			const savedEnable = (info.widgets_values ?? []).find(v => typeof v === "boolean");
+			if (savedEnable !== undefined) {
+				const enableWidget = this.widgets?.find(w => w.name === "enable");
+				if (enableWidget) enableWidget.value = savedEnable;
 			}
 			// Pass widgets_values: undefined so LiteGraph's configure does NOT attempt
 			// to re-apply widget values by index — we've already restored them above.
@@ -532,6 +473,25 @@ app.registerExtension({
 				if (w._value?.lora != null) w._compat = compat[w._value.lora];
 			}
 			this.setDirtyCanvas?.(true);
+		};
+
+		// Dim lora rows visually when node is disabled
+		const _onDrawForeground = nodeType.prototype.onDrawForeground;
+		nodeType.prototype.onDrawForeground = function (ctx) {
+			_onDrawForeground?.apply(this, arguments);
+			const enableWidget = this.widgets?.find(w => w.name === "enable");
+			if (enableWidget?.value === false) {
+				const loraWgts = _getLoraWidgets(this);
+				if (!loraWgts.length) return;
+				const y0 = loraWgts[0].last_y;
+				const y1 = loraWgts[loraWgts.length - 1].last_y + ROW_H;
+				ctx.save();
+				ctx.fillStyle = "rgba(0,0,0,0.55)";
+				ctx.beginPath();
+				ctx.roundRect(PAD, y0, this.size[0] - PAD * 2, y1 - y0, 3);
+				ctx.fill();
+				ctx.restore();
+			}
 		};
 
 		// Right-click context menu on lora rows
