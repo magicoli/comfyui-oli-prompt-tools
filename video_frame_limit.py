@@ -24,7 +24,7 @@ import torch
 
 from .utils import _safe_getattr
 
-TENSOR_COPIES        = 5
+TENSOR_COPIES = 5
 TEMPORAL_COMPRESSION = 4  # frame counts must be n*4+1 (Wan, HunyuanVideo, CogVideoX…)
 
 
@@ -49,8 +49,16 @@ def _get_model_info(model):
         if sub is not None and sub is not m:
             search.append(sub)
 
-    DIM_ATTRS = ("hidden_size", "dim", "embed_dim", "hidden_dim",
-                 "d_model", "inner_dim", "width", "model_dim")
+    DIM_ATTRS = (
+        "hidden_size",
+        "dim",
+        "embed_dim",
+        "hidden_dim",
+        "d_model",
+        "inner_dim",
+        "width",
+        "model_dim",
+    )
 
     found = {}  # attr -> value, deduplicated
     for obj in search:
@@ -88,43 +96,61 @@ def _get_model_info(model):
 
 
 class OliVideoFrameLimit:
-
     @classmethod
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "width":    ("INT",   {"default": 832,  "min": 64,  "max": 8192,   "step": 8}),
-                "height":   ("INT",   {"default": 480,  "min": 64,  "max": 8192,   "step": 8}),
-                "fps":      ("FLOAT", {"default": 16.0, "min": 1.0, "max": 120.0,  "step": 1.0}),
-                "duration": ("FLOAT", {"default": 10.0, "min": 0.1, "max": 3600.0, "step": 0.1}),
-                "safety_margin": ("FLOAT", {
-                    "default": 0.95, "min": 0.5, "max": 1.0, "step": 0.05,
-                    "tooltip": "Fraction of total VRAM to budget (0.95 = 5% headroom).",
-                }),
+                "width": ("INT", {"default": 832, "min": 64, "max": 8192, "step": 8}),
+                "height": ("INT", {"default": 480, "min": 64, "max": 8192, "step": 8}),
+                "fps": (
+                    "FLOAT",
+                    {"default": 16.0, "min": 1.0, "max": 120.0, "step": 1.0},
+                ),
+                "duration": (
+                    "FLOAT",
+                    {"default": 10.0, "min": 0.1, "max": 3600.0, "step": 0.1},
+                ),
+                "safety_margin": (
+                    "FLOAT",
+                    {
+                        "default": 0.95,
+                        "min": 0.01,
+                        # "max": 1.0,
+                        "step": 0.05,
+                        "tooltip": "Fraction of total VRAM to budget (0.95 = 5% headroom).",
+                    },
+                ),
             },
             "optional": {
                 "model": ("MODEL",),
             },
         }
 
-    RETURN_TYPES = ("INT",   "INT",    "INT",    "FLOAT", "FLOAT")
-    RETURN_NAMES = ("width", "height", "frames", "fps",   "duration")
+    RETURN_TYPES = ("INT", "INT", "INT", "FLOAT", "FLOAT")
+    RETURN_NAMES = ("width", "height", "frames", "fps", "duration")
     OUTPUT_NODE = True
     FUNCTION = "execute"
     CATEGORY = "Oli/utils"
 
-    def execute(self, width, height, duration, fps,
-                safety_margin=0.95, model=None):
+    def execute(self, width, height, duration, fps, safety_margin=0.95, model=None):
 
         requested_frames = max(1, round(duration * fps) + 1)  # +1: reference frame
 
         if not torch.cuda.is_available():
             info = "CUDA not available — no frame limit applied."
-            return {"ui": {"text": [info]},
-                    "result": (width, height, requested_frames, float(fps), float(duration))}
+            return {
+                "ui": {"text": [info]},
+                "result": (
+                    width,
+                    height,
+                    requested_frames,
+                    float(fps),
+                    float(duration),
+                ),
+            }
 
-        total_vram  = torch.cuda.get_device_properties(0).total_memory
-        vram_gb     = total_vram / (1024 ** 3)
+        total_vram = torch.cuda.get_device_properties(0).total_memory
+        vram_gb = total_vram / (1024**3)
         vram_budget = total_vram * safety_margin
 
         model_name, hidden_dim, debug_lines = _get_model_info(model)
@@ -145,7 +171,7 @@ class OliVideoFrameLimit:
             # Known model: the 3D VAE compresses TEMPORAL_COMPRESSION physical frames
             # into one latent frame before attention, so budget is in latent-frame units.
             bytes_per_latent_frame = TENSOR_COPIES * spatial_tokens * hidden_dim * 2
-            max_latent_frames   = max(1, int(vram_budget / bytes_per_latent_frame))
+            max_latent_frames = max(1, int(vram_budget / bytes_per_latent_frame))
             max_physical_frames = (max_latent_frames - 1) * TEMPORAL_COMPRESSION + 1
         else:
             # Generic fallback: no temporal compression assumed; calibrated at
@@ -153,7 +179,7 @@ class OliVideoFrameLimit:
             bytes_per_frame = TENSOR_COPIES * spatial_tokens * hidden_dim * 2
             max_physical_frames = max(1, int(vram_budget / bytes_per_frame))
 
-        actual_frames   = snap(min(requested_frames, max_physical_frames))
+        actual_frames = snap(min(requested_frames, max_physical_frames))
         actual_duration = (actual_frames - 1) / fps  # -1: reference frame
 
         info = (
@@ -166,7 +192,13 @@ class OliVideoFrameLimit:
 
         return {
             "ui": {"text": [info]},
-            "result": (width, height, actual_frames, float(fps), float(actual_duration)),
+            "result": (
+                width,
+                height,
+                actual_frames,
+                float(fps),
+                float(actual_duration),
+            ),
         }
 
 
