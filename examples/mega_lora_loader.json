@@ -1,11 +1,11 @@
 {
-  "last_node_id": 1,
+  "last_node_id": 2,
   "last_link_id": 0,
   "nodes": [
     {
       "id": 1,
       "type": "OliLoraLoader",
-      "pos": [200, 150],
+      "pos": [200, 180],
       "size": {"0": 420, "1": 130},
       "flags": {},
       "order": 0,
@@ -23,6 +23,19 @@
       ],
       "properties": {"Node name for S&R": "OliLoraLoader"},
       "widgets_values": [true]
+    },
+    {
+      "id": 2,
+      "type": "Note",
+      "pos": [200, 40],
+      "size": {"0": 420, "1": 120},
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {"text": "Connect model and CLIP from a checkpoint loader, then click ➕ Add LoRA to add rows.\n\nWithout model/clip: the node only builds a LORA_STACK — feed the stack output to a downstream loader that has model/clip connected. This lets you define LoRAs once and apply them to several models."},
+      "widgets_values": ["Connect model and CLIP from a checkpoint loader, then click ➕ Add LoRA to add rows.\n\nWithout model/clip: the node only builds a LORA_STACK — feed the stack output to a downstream loader that has model/clip connected. This lets you define LoRAs once and apply them to several models."]
     }
   ],
   "links": [],

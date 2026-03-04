@@ -1,5 +1,5 @@
 """
-OliPromptLinePick — fork of easy promptLine.
+OliPromptLinePick — reimplementation of the easy promptLine concept.
 
 Replaces start_index + max_rows with a seed. Item is picked via
 sha256(seed:node_id) % len(lines): perfectly uniform distribution,

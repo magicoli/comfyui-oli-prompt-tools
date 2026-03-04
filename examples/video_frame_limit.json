@@ -1,11 +1,11 @@
 {
-  "last_node_id": 1,
+  "last_node_id": 2,
   "last_link_id": 0,
   "nodes": [
     {
       "id": 1,
       "type": "OliVideoFrameLimit",
-      "pos": [200, 150],
+      "pos": [200, 200],
       "size": {"0": 340, "1": 230},
       "flags": {},
       "order": 0,
@@ -22,6 +22,19 @@
       ],
       "properties": {"Node name for S&R": "OliVideoFrameLimit"},
       "widgets_values": [832, 480, 16.0, 10.0, 0.95]
+    },
+    {
+      "id": 2,
+      "type": "Note",
+      "pos": [200, 40],
+      "size": {"0": 520, "1": 130},
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {"text": "Set your desired resolution, fps and duration. Connect a model to enable hidden_dim auto-detection (more accurate frame budget).\n\nWire width, height, frames, fps to your video sampler. The node displays detected VRAM, model dim, requested and capped frame count on the canvas after each run — use it as your central generation config panel."},
+      "widgets_values": ["Set your desired resolution, fps and duration. Connect a model to enable hidden_dim auto-detection (more accurate frame budget).\n\nWire width, height, frames, fps to your video sampler. The node displays detected VRAM, model dim, requested and capped frame count on the canvas after each run — use it as your central generation config panel."]
     }
   ],
   "links": [],

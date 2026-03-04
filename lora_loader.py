@@ -1,8 +1,8 @@
 """
-OliLoraLoader — Power Lora Loader with automatic compatibility filtering.
+OliLoraLoader — stackable multi-LoRA loader with automatic compatibility filtering.
 
-Fork of rgthree's Power Lora Loader (MIT licence).
-Adds: reads each LoRA's safetensors header (no weight loading) and compares
+Inspired by rgthree's Power Lora Loader.
+Reads each LoRA's safetensors header (no weight loading) and compares
 keys against ComfyUI's own key-mapping for the connected model.
 Incompatible LoRAs are silently skipped — no log pollution.
 """
@@ -136,16 +136,34 @@ class OliLoraLoader:
             }
 
         compat    = {}              # filename → True | False | None (disabled)
-        out_stack = list(lora_stack) if lora_stack else []
+        out_stack = []
 
-        # ── 1. Apply incoming stack loras first (no compat check — upstream decision) ──
-        for (filename, strength_model, strength_clip) in (lora_stack or []):
+        # ── 1. Apply incoming stack loras, filtering incompatible ones if model is known ──
+        for entry in (lora_stack or []):
+            filename, strength_model, strength_clip = entry
             if not filename or filename == "None":
                 continue
+
             if model is not None:
+                lora_path = folder_paths.get_full_path("loras", filename)
+                if lora_path is None:
+                    print(f"\033[33m[Oli Lora Loader]\033[0m LoRA not found: {filename}")
+                    compat[filename] = False
+                    continue
+
+                compatible, reason = _check_compat(model, lora_path)
+                compat[filename] = compatible
+
+                if not compatible:
+                    print(f"\033[33m[Oli Lora Loader]\033[0m "
+                          f"Skip incompatible LoRA: {filename} ({reason})")
+                    continue
+
                 model, clip = LoraLoader().load_lora(
                     model, clip, filename, strength_model, strength_clip
                 )
+
+            out_stack.append(entry)
 
         # ── 2. Apply our own lora rows ──────────────────────────────────────────────
         for key, value in kwargs.items():
