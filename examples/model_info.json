@@ -1,0 +1,30 @@
+{
+  "last_node_id": 1,
+  "last_link_id": 0,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "OliModelInfo",
+      "pos": [200, 150],
+      "size": {"0": 280, "1": 110},
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [
+        {"name": "model", "type": "*", "link": null}
+      ],
+      "outputs": [
+        {"name": "class_name", "type": "STRING", "links": [], "slot_index": 0},
+        {"name": "dim",        "type": "INT",    "links": [], "slot_index": 1},
+        {"name": "label",      "type": "STRING", "links": [], "slot_index": 2}
+      ],
+      "properties": {"Node name for S&R": "OliModelInfo"},
+      "widgets_values": []
+    }
+  ],
+  "links": [],
+  "groups": [],
+  "config": {},
+  "extra": {"ds": {"scale": 1.0, "offset": [0, 0]}},
+  "version": 0.4
+}

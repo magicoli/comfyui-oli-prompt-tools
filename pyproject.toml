@@ -1,7 +1,11 @@
 [project]
-name = "comfyui-oli-prompt-tools"
-version = "1.0.0"
-description = "Seed-based prompt line picker and VRAM-aware video frame limiter for ComfyUI"
+name = "oli-prompt-tools"
+version = "0.0.1"
+description = "A couple of basic tools: Mega Lora Loader, Video Frame Limiter, Seed-based Prompt Line Picker, Model Info, Node Label."
+authors = [
+  {name = "Olivier van Helden", email = "olivier@van-helden.net"}
+]
+readme = "README.md"
 license = { text = "AGPL-3.0" }
 requires-python = ">=3.9"
 
@@ -9,3 +13,8 @@ requires-python = ">=3.9"
 PublisherId = "magicoli"
 DisplayName = "Oli Prompt Tools"
 Icon = ""
+
+[project.urls]
+Repository = "https://github.com/magicoli/oli-prompt-tools"
+BugTracker = "https://github.com/magicoli/oli-prompt-tools/issues"
+Documentation = "https://github.com/magicoli/oli-prompt-tools/wiki"

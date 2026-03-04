@@ -1,0 +1,33 @@
+{
+  "last_node_id": 1,
+  "last_link_id": 0,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "OliLoraLoader",
+      "pos": [200, 150],
+      "size": {"0": 420, "1": 130},
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [
+        {"name": "enable",     "type": "BOOLEAN",    "link": null},
+        {"name": "lora_stack", "type": "LORA_STACK", "link": null},
+        {"name": "model",      "type": "MODEL",       "link": null},
+        {"name": "clip",       "type": "CLIP",        "link": null}
+      ],
+      "outputs": [
+        {"name": "lora_stack", "type": "LORA_STACK", "links": [], "slot_index": 0},
+        {"name": "MODEL",      "type": "MODEL",       "links": [], "slot_index": 1},
+        {"name": "CLIP",       "type": "CLIP",        "links": [], "slot_index": 2}
+      ],
+      "properties": {"Node name for S&R": "OliLoraLoader"},
+      "widgets_values": [true]
+    }
+  ],
+  "links": [],
+  "groups": [],
+  "config": {},
+  "extra": {"ds": {"scale": 1.0, "offset": [0, 0]}},
+  "version": 0.4
+}
