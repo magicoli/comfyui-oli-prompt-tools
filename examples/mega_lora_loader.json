@@ -1,46 +1,1519 @@
 {
-  "last_node_id": 2,
-  "last_link_id": 0,
-  "nodes": [
-    {
-      "id": 1,
-      "type": "OliLoraLoader",
-      "pos": [200, 180],
-      "size": {"0": 420, "1": 130},
-      "flags": {},
-      "order": 0,
-      "mode": 0,
-      "inputs": [
-        {"name": "enable",     "type": "BOOLEAN",    "link": null},
-        {"name": "lora_stack", "type": "LORA_STACK", "link": null},
-        {"name": "model",      "type": "MODEL",       "link": null},
-        {"name": "clip",       "type": "CLIP",        "link": null}
-      ],
-      "outputs": [
-        {"name": "lora_stack", "type": "LORA_STACK", "links": [], "slot_index": 0},
-        {"name": "MODEL",      "type": "MODEL",       "links": [], "slot_index": 1},
-        {"name": "CLIP",       "type": "CLIP",        "links": [], "slot_index": 2}
-      ],
-      "properties": {"Node name for S&R": "OliLoraLoader"},
-      "widgets_values": [true]
-    },
-    {
-      "id": 2,
-      "type": "Note",
-      "pos": [200, 40],
-      "size": {"0": 420, "1": 120},
-      "flags": {},
-      "order": 1,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [],
-      "properties": {"text": "Connect model and CLIP from a checkpoint loader, then click ➕ Add LoRA to add rows.\n\nWithout model/clip: the node only builds a LORA_STACK — feed the stack output to a downstream loader that has model/clip connected. This lets you define LoRAs once and apply them to several models."},
-      "widgets_values": ["Connect model and CLIP from a checkpoint loader, then click ➕ Add LoRA to add rows.\n\nWithout model/clip: the node only builds a LORA_STACK — feed the stack output to a downstream loader that has model/clip connected. This lets you define LoRAs once and apply them to several models."]
-    }
-  ],
-  "links": [],
-  "groups": [],
-  "config": {},
-  "extra": {"ds": {"scale": 1.0, "offset": [0, 0]}},
-  "version": 0.4
+	"id": "625dc695-8b5f-4e0f-8bd1-8741713e27f5",
+	"revision": 0,
+	"last_node_id": 156,
+	"last_link_id": 246,
+	"nodes": [
+		{
+			"id": 63,
+			"type": "UNETLoader",
+			"pos": [520, 760],
+			"size": [210, 82],
+			"flags": {},
+			"order": 0,
+			"mode": 0,
+			"inputs": [],
+			"outputs": [
+				{
+					"name": "MODEL",
+					"type": "MODEL",
+					"links": [179]
+				}
+			],
+			"properties": {
+				"cnr_id": "comfy-core",
+				"ver": "0.3.73",
+				"Node name for S&R": "UNETLoader",
+				"models": [
+					{
+						"name": "z_image_turbo_bf16.safetensors",
+						"url": "https://huggingface.co/Comfy-Org/z_image_turbo/resolve/main/split_files/diffusion_models/z_image_turbo_bf16.safetensors",
+						"directory": "diffusion_models"
+					}
+				],
+				"enableTabs": false,
+				"tabWidth": 65,
+				"tabXOffset": 10,
+				"hasSecondTab": false,
+				"secondTabText": "Send Back",
+				"secondTabOffset": 80,
+				"secondTabWidth": 65
+			},
+			"widgets_values": ["z_image_turbo_bf16.safetensors", "default"],
+			"color": "#323",
+			"bgcolor": "#535"
+		},
+		{
+			"id": 141,
+			"type": "MarkdownNote",
+			"pos": [800, 600],
+			"size": [320, 88],
+			"flags": {},
+			"order": 1,
+			"mode": 0,
+			"inputs": [],
+			"outputs": [],
+			"title": "Applier",
+			"properties": {},
+			"widgets_values": [
+				"Connect model and CLIP from a checkpoint loader, then click ➕ Add LoRA to add rows."
+			],
+			"color": "#232",
+			"bgcolor": "#353"
+		},
+		{
+			"id": 64,
+			"type": "CLIPLoader",
+			"pos": [520, 880],
+			"size": [210, 106],
+			"flags": {},
+			"order": 2,
+			"mode": 0,
+			"inputs": [],
+			"outputs": [
+				{
+					"name": "CLIP",
+					"type": "CLIP",
+					"links": [180]
+				}
+			],
+			"properties": {
+				"cnr_id": "comfy-core",
+				"ver": "0.3.73",
+				"Node name for S&R": "CLIPLoader",
+				"models": [
+					{
+						"name": "qwen_3_4b.safetensors",
+						"url": "https://huggingface.co/Comfy-Org/z_image_turbo/resolve/main/split_files/text_encoders/qwen_3_4b.safetensors",
+						"directory": "text_encoders"
+					}
+				],
+				"enableTabs": false,
+				"tabWidth": 65,
+				"tabXOffset": 10,
+				"hasSecondTab": false,
+				"secondTabText": "Send Back",
+				"secondTabOffset": 80,
+				"secondTabWidth": 65
+			},
+			"widgets_values": ["qwen_3_4b.safetensors", "lumina2", "default"],
+			"color": "#432",
+			"bgcolor": "#653"
+		},
+		{
+			"id": 133,
+			"type": "MarkdownNote",
+			"pos": [-120, 280],
+			"size": [560, 88],
+			"flags": {},
+			"order": 3,
+			"mode": 0,
+			"inputs": [],
+			"outputs": [],
+			"title": "LoRA stacks",
+			"properties": {},
+			"widgets_values": [
+				"This is an example of use to define generic LoRa configurations independant from model, then apply them to the desired model(s) later, with a second Mega Lora Loader importing the lora stack."
+			],
+			"color": "#232",
+			"bgcolor": "#353"
+		},
+		{
+			"id": 132,
+			"type": "MarkdownNote",
+			"pos": [-520, 480],
+			"size": [280, 280],
+			"flags": {},
+			"order": 4,
+			"mode": 0,
+			"inputs": [],
+			"outputs": [],
+			"title": "General use",
+			"properties": {},
+			"widgets_values": [
+				"Connect model and CLIP from a checkpoint loader, then click ➕ Add LoRA to add rows.\n\n## Modes\n\n**Without model/clip:** the node only builds a LORA_STACK — feed the stack output to a downstream loader that has model/clip connected. This lets you define LoRAs once and apply them to several models.\n\n**With model/clip:** the node verifies each LoRA to only enables the ones compatible with the model. The model and clip output can be used directly.\n\n## Chain\n\nYou can chain the Mega Lora Loaders in both modes."
+			],
+			"color": "#232",
+			"bgcolor": "#353"
+		},
+		{
+			"id": 92,
+			"type": "ImpactMakeAnyList",
+			"pos": [280, 440],
+			"size": [163.63333129882812, 226],
+			"flags": {},
+			"order": 10,
+			"mode": 0,
+			"inputs": [
+				{
+					"name": "value1",
+					"shape": 7,
+					"type": "LORA_STACK",
+					"link": 205
+				},
+				{
+					"name": "value2",
+					"type": "LORA_STACK",
+					"link": 242
+				},
+				{
+					"name": "value3",
+					"type": "LORA_STACK",
+					"link": 243
+				},
+				{
+					"name": "value4",
+					"type": "LORA_STACK",
+					"link": 244
+				},
+				{
+					"name": "value5",
+					"type": "LORA_STACK",
+					"link": null
+				},
+				{
+					"name": "value6",
+					"type": "LORA_STACK",
+					"link": null
+				},
+				{
+					"name": "value7",
+					"type": "LORA_STACK",
+					"link": null
+				},
+				{
+					"name": "value8",
+					"type": "LORA_STACK",
+					"link": null
+				},
+				{
+					"name": "value9",
+					"type": "LORA_STACK",
+					"link": null
+				},
+				{
+					"name": "value10",
+					"type": "LORA_STACK",
+					"link": null
+				},
+				{
+					"name": "value11",
+					"type": "LORA_STACK",
+					"link": null
+				}
+			],
+			"outputs": [
+				{
+					"label": "LORA_STACK",
+					"name": "LORA_STACK",
+					"shape": 6,
+					"type": "LORA_STACK",
+					"links": [128, 210]
+				}
+			],
+			"properties": {
+				"cnr_id": "comfyui-impact-pack",
+				"ver": "8.28.2",
+				"Node name for S&R": "ImpactMakeAnyList"
+			},
+			"widgets_values": []
+		},
+		{
+			"id": 78,
+			"type": "SaveImage",
+			"pos": [2360, 760],
+			"size": [314.4499969482422, 270],
+			"flags": {},
+			"order": 15,
+			"mode": 4,
+			"inputs": [
+				{
+					"name": "images",
+					"type": "IMAGE",
+					"link": 108
+				}
+			],
+			"outputs": [],
+			"properties": {
+				"cnr_id": "comfy-core",
+				"ver": "0.15.1",
+				"Node name for S&R": "SaveImage"
+			},
+			"widgets_values": ["Mega Lora Loader (Oli)"]
+		},
+		{
+			"id": 153,
+			"type": "OliLoraLoader",
+			"pos": [-120, 680],
+			"size": [340, 146],
+			"flags": {},
+			"order": 5,
+			"mode": 0,
+			"inputs": [
+				{
+					"name": "lora_stack",
+					"shape": 7,
+					"type": "LORA_STACK",
+					"link": null
+				},
+				{
+					"name": "model",
+					"shape": 7,
+					"type": "MODEL",
+					"link": null
+				},
+				{
+					"name": "clip",
+					"shape": 7,
+					"type": "CLIP",
+					"link": null
+				}
+			],
+			"outputs": [
+				{
+					"name": "lora_stack",
+					"type": "LORA_STACK",
+					"links": [239, 242]
+				},
+				{
+					"name": "MODEL",
+					"type": "MODEL",
+					"links": null
+				},
+				{
+					"name": "CLIP",
+					"type": "CLIP",
+					"links": null
+				}
+			],
+			"properties": {
+				"aux_id": "magicoli/oli-prompt-tools",
+				"ver": "dce0484e4d91b814a8538fa9797a2fcba3bb53d4",
+				"Node name for S&R": "OliLoraLoader"
+			},
+			"widgets_values": [
+				true,
+				{
+					"on": true,
+					"lora": "Modeling 101 v1.5.safetensors",
+					"strength": 1
+				},
+				""
+			]
+		},
+		{
+			"id": 135,
+			"type": "OliLoraLoader",
+			"pos": [-120, 880],
+			"size": [340, 146],
+			"flags": {},
+			"order": 6,
+			"mode": 0,
+			"inputs": [
+				{
+					"name": "lora_stack",
+					"shape": 7,
+					"type": "LORA_STACK",
+					"link": null
+				},
+				{
+					"name": "model",
+					"shape": 7,
+					"type": "MODEL",
+					"link": null
+				},
+				{
+					"name": "clip",
+					"shape": 7,
+					"type": "CLIP",
+					"link": null
+				}
+			],
+			"outputs": [
+				{
+					"name": "lora_stack",
+					"type": "LORA_STACK",
+					"links": [204, 243]
+				},
+				{
+					"name": "MODEL",
+					"type": "MODEL",
+					"links": null
+				},
+				{
+					"name": "CLIP",
+					"type": "CLIP",
+					"links": null
+				}
+			],
+			"properties": {
+				"aux_id": "magicoli/oli-prompt-tools",
+				"ver": "dce0484e4d91b814a8538fa9797a2fcba3bb53d4",
+				"Node name for S&R": "OliLoraLoader"
+			},
+			"widgets_values": [
+				true,
+				{
+					"on": true,
+					"lora": "HI8.safetensors",
+					"strength": 1
+				},
+				""
+			]
+		},
+		{
+			"id": 142,
+			"type": "OliLoraLoader",
+			"pos": [-120, 1080],
+			"size": [340, 146],
+			"flags": {},
+			"order": 7,
+			"mode": 0,
+			"inputs": [
+				{
+					"name": "lora_stack",
+					"shape": 7,
+					"type": "LORA_STACK",
+					"link": null
+				},
+				{
+					"name": "model",
+					"shape": 7,
+					"type": "MODEL",
+					"link": null
+				},
+				{
+					"name": "clip",
+					"shape": 7,
+					"type": "CLIP",
+					"link": null
+				}
+			],
+			"outputs": [
+				{
+					"name": "lora_stack",
+					"type": "LORA_STACK",
+					"links": [213, 233, 244]
+				},
+				{
+					"name": "MODEL",
+					"type": "MODEL",
+					"links": null
+				},
+				{
+					"name": "CLIP",
+					"type": "CLIP",
+					"links": null
+				}
+			],
+			"properties": {
+				"aux_id": "magicoli/oli-prompt-tools",
+				"ver": "dce0484e4d91b814a8538fa9797a2fcba3bb53d4",
+				"Node name for S&R": "OliLoraLoader"
+			},
+			"widgets_values": [
+				true,
+				{
+					"on": true,
+					"lora": "Western Toon ZIT_000003752.safetensors",
+					"strength": 1
+				},
+				""
+			]
+		},
+		{
+			"id": 136,
+			"type": "OliLoraLoader",
+			"pos": [-120, 440],
+			"size": [340, 170],
+			"flags": {},
+			"order": 8,
+			"mode": 0,
+			"inputs": [
+				{
+					"name": "lora_stack",
+					"shape": 7,
+					"type": "LORA_STACK",
+					"link": null
+				},
+				{
+					"name": "model",
+					"shape": 7,
+					"type": "MODEL",
+					"link": null
+				},
+				{
+					"name": "clip",
+					"shape": 7,
+					"type": "CLIP",
+					"link": null
+				}
+			],
+			"outputs": [
+				{
+					"name": "lora_stack",
+					"type": "LORA_STACK",
+					"links": [205]
+				},
+				{
+					"name": "MODEL",
+					"type": "MODEL",
+					"links": null
+				},
+				{
+					"name": "CLIP",
+					"type": "CLIP",
+					"links": null
+				}
+			],
+			"properties": {
+				"aux_id": "magicoli/oli-prompt-tools",
+				"ver": "dce0484e4d91b814a8538fa9797a2fcba3bb53d4",
+				"Node name for S&R": "OliLoraLoader"
+			},
+			"widgets_values": [
+				true,
+				{
+					"on": true,
+					"lora": "add_detail.safetensors",
+					"strength": 1
+				},
+				{
+					"on": true,
+					"lora": "more_details.safetensors",
+					"strength": 1
+				},
+				""
+			],
+			"color": "#233",
+			"bgcolor": "#355"
+		},
+		{
+			"id": 62,
+			"type": "3a0a65ed-031b-4c14-88c1-7bf25872df93",
+			"pos": [1240, 760],
+			"size": [400, 670],
+			"flags": {},
+			"order": 14,
+			"mode": 0,
+			"inputs": [
+				{
+					"label": "prompt",
+					"name": "text",
+					"type": "STRING",
+					"widget": {
+						"name": "text"
+					},
+					"link": null
+				},
+				{
+					"name": "model",
+					"type": "MODEL",
+					"link": 104
+				},
+				{
+					"name": "clip",
+					"type": "CLIP",
+					"link": 105
+				},
+				{
+					"name": "seed",
+					"type": "INT",
+					"widget": {
+						"name": "seed"
+					},
+					"link": 246
+				}
+			],
+			"outputs": [
+				{
+					"name": "IMAGE",
+					"type": "IMAGE",
+					"links": [108, 189]
+				}
+			],
+			"properties": {
+				"proxyWidgets": [
+					["-1", "text"],
+					["-1", "width"],
+					["-1", "height"],
+					["-1", "steps"],
+					["-1", "unet_name"],
+					["-1", "clip_name"],
+					["-1", "seed"],
+					["-1", "vae_name"],
+					["-1", "vhslatentpreview"]
+				],
+				"cnr_id": "comfy-core",
+				"ver": "0.3.73",
+				"enableTabs": false,
+				"tabWidth": 65,
+				"tabXOffset": 10,
+				"hasSecondTab": false,
+				"secondTabText": "Send Back",
+				"secondTabOffset": 80,
+				"secondTabWidth": 65
+			},
+			"widgets_values": [
+				"Latina female with thick wavy hair, harbor boats and pastel houses behind. Breezy seaside light, warm tones, cinematic close-up. ",
+				1024,
+				1024,
+				8,
+				"z_image_turbo_bf16.safetensors",
+				"qwen_3_4b.safetensors",
+				0,
+				"ae.safetensors"
+			]
+		},
+		{
+			"id": 68,
+			"type": "PreviewImage",
+			"pos": [1680, 760],
+			"size": [640, 680],
+			"flags": {},
+			"order": 16,
+			"mode": 0,
+			"inputs": [
+				{
+					"name": "images",
+					"type": "IMAGE",
+					"link": 189
+				}
+			],
+			"outputs": [],
+			"properties": {
+				"cnr_id": "comfy-core",
+				"ver": "0.15.1",
+				"Node name for S&R": "PreviewImage"
+			},
+			"widgets_values": []
+		},
+		{
+			"id": 156,
+			"type": "PrimitiveNode",
+			"pos": [520, 1040],
+			"size": [210, 82],
+			"flags": {},
+			"order": 9,
+			"mode": 0,
+			"inputs": [],
+			"outputs": [
+				{
+					"name": "INT",
+					"type": "INT",
+					"widget": {
+						"name": "seed"
+					},
+					"links": [246]
+				}
+			],
+			"title": "seed",
+			"properties": {
+				"Run widget replace on values": false
+			},
+			"widgets_values": [0, "fixed"]
+		},
+		{
+			"id": 74,
+			"type": "OliLoraLoader",
+			"pos": [800, 760],
+			"size": [340, 170],
+			"flags": {},
+			"order": 11,
+			"mode": 0,
+			"inputs": [
+				{
+					"name": "lora_stack",
+					"shape": 7,
+					"type": "LORA_STACK",
+					"link": 128
+				},
+				{
+					"name": "model",
+					"shape": 7,
+					"type": "MODEL",
+					"link": 179
+				},
+				{
+					"name": "clip",
+					"shape": 7,
+					"type": "CLIP",
+					"link": 180
+				}
+			],
+			"outputs": [
+				{
+					"name": "lora_stack",
+					"type": "LORA_STACK",
+					"slot_index": 0,
+					"links": [216]
+				},
+				{
+					"name": "MODEL",
+					"type": "MODEL",
+					"slot_index": 1,
+					"links": [104]
+				},
+				{
+					"name": "CLIP",
+					"type": "CLIP",
+					"slot_index": 2,
+					"links": [105]
+				}
+			],
+			"properties": {
+				"aux_id": "comfyui-oli-prompt-tools",
+				"ver": "259c5e479d95887fc2b79958bb9e3363c598f428",
+				"Node name for S&R": "OliLoraLoader"
+			},
+			"widgets_values": [
+				true,
+				{
+					"on": true,
+					"lora": "add_detail.safetensors",
+					"strength": 1
+				},
+				{
+					"on": false,
+					"lora": "Jibs_Realistic_z-image_lora_V1.safetensors",
+					"strength": 1
+				},
+				""
+			],
+			"color": "#233",
+			"bgcolor": "#355"
+		},
+		{
+			"id": 139,
+			"type": "PreviewAny",
+			"pos": [520, 360],
+			"size": [520, 160],
+			"flags": {},
+			"order": 12,
+			"mode": 0,
+			"inputs": [
+				{
+					"name": "source",
+					"type": "*",
+					"link": 210
+				}
+			],
+			"outputs": [],
+			"title": "Stacked LoRAS",
+			"properties": {
+				"cnr_id": "comfy-core",
+				"ver": "0.15.1",
+				"Node name for S&R": "PreviewAny"
+			},
+			"widgets_values": [null, null, null]
+		},
+		{
+			"id": 102,
+			"type": "PreviewAny",
+			"pos": [1240, 360],
+			"size": [520, 160],
+			"flags": {},
+			"order": 13,
+			"mode": 0,
+			"inputs": [
+				{
+					"name": "source",
+					"type": "*",
+					"link": 216
+				}
+			],
+			"outputs": [],
+			"title": "Applied LoRAS",
+			"properties": {
+				"cnr_id": "comfy-core",
+				"ver": "0.15.1",
+				"Node name for S&R": "PreviewAny"
+			},
+			"widgets_values": [null, null, null]
+		}
+	],
+	"links": [
+		[104, 74, 1, 62, 1, "MODEL"],
+		[105, 74, 2, 62, 2, "CLIP"],
+		[108, 62, 0, 78, 0, "IMAGE"],
+		[128, 92, 0, 74, 0, "LORA_STACK"],
+		[179, 63, 0, 74, 1, "MODEL"],
+		[180, 64, 0, 74, 2, "CLIP"],
+		[189, 62, 0, 68, 0, "IMAGE"],
+		[205, 136, 0, 92, 0, "LORA_STACK"],
+		[210, 92, 0, 139, 0, "LORA_STACK"],
+		[216, 74, 0, 102, 0, "LORA_STACK"],
+		[233, 142, 0, 92, 1, "LORA_STACK"],
+		[239, 153, 0, 92, 1, "LORA_STACK"],
+		[242, 153, 0, 92, 1, "LORA_STACK"],
+		[243, 135, 0, 92, 2, "LORA_STACK"],
+		[244, 142, 0, 92, 3, "LORA_STACK"],
+		[246, 156, 0, 62, 3, "INT"]
+	],
+	"groups": [
+		{
+			"id": 5,
+			"title": "Predefined LoRA stacks (optional)",
+			"bounding": [-160, 200, 640, 1040],
+			"color": "#3f789e",
+			"font_size": 24,
+			"flags": {}
+		}
+	],
+	"definitions": {
+		"subgraphs": [
+			{
+				"id": "3a0a65ed-031b-4c14-88c1-7bf25872df93",
+				"version": 1,
+				"state": {
+					"lastGroupId": 5,
+					"lastNodeId": 156,
+					"lastLinkId": 246,
+					"lastRerouteId": 0
+				},
+				"revision": 0,
+				"config": {},
+				"name": "Text to Image (Z-Image-Turbo)",
+				"inputNode": {
+					"id": -10,
+					"bounding": [-80, 425, 120, 240]
+				},
+				"outputNode": {
+					"id": -20,
+					"bounding": [1490, 415, 120, 60]
+				},
+				"inputs": [
+					{
+						"id": "fb178669-e742-4a53-8a69-7df59834dfd8",
+						"name": "text",
+						"type": "STRING",
+						"linkIds": [202],
+						"label": "prompt",
+						"pos": [20, 445]
+					},
+					{
+						"id": "dd780b3c-23e9-46ff-8469-156008f42e5a",
+						"name": "width",
+						"type": "INT",
+						"linkIds": [35],
+						"pos": [20, 465]
+					},
+					{
+						"id": "7b08d546-6bb0-4ef9-82e9-ffae5e1ee6bc",
+						"name": "height",
+						"type": "INT",
+						"linkIds": [36],
+						"pos": [20, 485]
+					},
+					{
+						"id": "8ed4eb73-a2bf-4766-8bf4-c5890b560596",
+						"name": "unet_name",
+						"type": "COMBO",
+						"linkIds": [38],
+						"pos": [20, 505]
+					},
+					{
+						"id": "f362d639-d412-4b5d-8490-1e9995dc5f82",
+						"name": "clip_name",
+						"type": "COMBO",
+						"linkIds": [39],
+						"pos": [20, 525]
+					},
+					{
+						"id": "ee25ac16-de63-4b74-bbbb-5b29fdc1efcf",
+						"name": "vae_name",
+						"type": "COMBO",
+						"linkIds": [40],
+						"pos": [20, 545]
+					},
+					{
+						"id": "51cbcd61-9218-4bcb-89ac-ecdfb1ef8892",
+						"name": "steps",
+						"type": "INT",
+						"linkIds": [70],
+						"pos": [20, 565]
+					},
+					{
+						"id": "35573b94-2bd8-4053-9168-045830058694",
+						"name": "model",
+						"type": "MODEL",
+						"linkIds": [71],
+						"pos": [20, 585]
+					},
+					{
+						"id": "3e61933f-f902-493e-a689-c7f43c69d8b5",
+						"name": "clip",
+						"type": "CLIP",
+						"linkIds": [72],
+						"pos": [20, 605]
+					},
+					{
+						"id": "e715a0b2-b4d3-4658-b371-10a25815c278",
+						"name": "seed",
+						"type": "INT",
+						"linkIds": [185],
+						"pos": [20, 625]
+					}
+				],
+				"outputs": [
+					{
+						"id": "1fa72a21-ce00-4952-814e-1f2ffbe87d1d",
+						"name": "IMAGE",
+						"type": "IMAGE",
+						"linkIds": [16],
+						"localized_name": "IMAGE",
+						"pos": [1510, 435]
+					}
+				],
+				"widgets": [],
+				"nodes": [
+					{
+						"id": 30,
+						"type": "CLIPLoader",
+						"pos": [98.33622707345077, 331.6784443404125],
+						"size": [270, 124.44444020589194],
+						"flags": {},
+						"order": 7,
+						"mode": 0,
+						"inputs": [
+							{
+								"localized_name": "clip_name",
+								"name": "clip_name",
+								"type": "COMBO",
+								"widget": {
+									"name": "clip_name"
+								},
+								"link": 39
+							}
+						],
+						"outputs": [
+							{
+								"localized_name": "CLIP",
+								"name": "CLIP",
+								"type": "CLIP",
+								"links": [28]
+							}
+						],
+						"properties": {
+							"cnr_id": "comfy-core",
+							"ver": "0.3.73",
+							"Node name for S&R": "CLIPLoader",
+							"models": [
+								{
+									"name": "qwen_3_4b.safetensors",
+									"url": "https://huggingface.co/Comfy-Org/z_image_turbo/resolve/main/split_files/text_encoders/qwen_3_4b.safetensors",
+									"directory": "text_encoders"
+								}
+							],
+							"enableTabs": false,
+							"tabWidth": 65,
+							"tabXOffset": 10,
+							"hasSecondTab": false,
+							"secondTabText": "Send Back",
+							"secondTabOffset": 80,
+							"secondTabWidth": 65
+						},
+						"widgets_values": [
+							"qwen_3_4b.safetensors",
+							"lumina2",
+							"default"
+						]
+					},
+					{
+						"id": 29,
+						"type": "VAELoader",
+						"pos": [110.00833777087925, 479.9998883711743],
+						"size": [270, 68.88888676961264],
+						"flags": {},
+						"order": 6,
+						"mode": 0,
+						"inputs": [
+							{
+								"localized_name": "nom_vae",
+								"name": "vae_name",
+								"type": "COMBO",
+								"widget": {
+									"name": "vae_name"
+								},
+								"link": 40
+							}
+						],
+						"outputs": [
+							{
+								"localized_name": "VAE",
+								"name": "VAE",
+								"type": "VAE",
+								"links": [27]
+							}
+						],
+						"properties": {
+							"cnr_id": "comfy-core",
+							"ver": "0.3.73",
+							"Node name for S&R": "VAELoader",
+							"models": [
+								{
+									"name": "ae.safetensors",
+									"url": "https://huggingface.co/Comfy-Org/z_image_turbo/resolve/main/split_files/vae/ae.safetensors",
+									"directory": "vae"
+								}
+							],
+							"enableTabs": false,
+							"tabWidth": 65,
+							"tabXOffset": 10,
+							"hasSecondTab": false,
+							"secondTabText": "Send Back",
+							"secondTabOffset": 80,
+							"secondTabWidth": 65
+						},
+						"widgets_values": ["ae.safetensors"]
+					},
+					{
+						"id": 33,
+						"type": "ConditioningZeroOut",
+						"pos": [640.0124930900931, 620.0044508711743],
+						"size": [233.98332977294922, 40],
+						"flags": {},
+						"order": 8,
+						"mode": 0,
+						"inputs": [
+							{
+								"localized_name": "conditioning",
+								"name": "conditioning",
+								"type": "CONDITIONING",
+								"link": 32
+							}
+						],
+						"outputs": [
+							{
+								"localized_name": "CONDITIONNEMENT",
+								"name": "CONDITIONING",
+								"type": "CONDITIONING",
+								"links": [33]
+							}
+						],
+						"properties": {
+							"cnr_id": "comfy-core",
+							"ver": "0.3.73",
+							"Node name for S&R": "ConditioningZeroOut",
+							"enableTabs": false,
+							"tabWidth": 65,
+							"tabXOffset": 10,
+							"hasSecondTab": false,
+							"secondTabText": "Send Back",
+							"secondTabOffset": 80,
+							"secondTabWidth": 65
+						},
+						"widgets_values": []
+					},
+					{
+						"id": 8,
+						"type": "VAEDecode",
+						"pos": [1219.99948002857, 160.01270444681708],
+						"size": [210, 60],
+						"flags": {},
+						"order": 1,
+						"mode": 0,
+						"inputs": [
+							{
+								"localized_name": "échantillons",
+								"name": "samples",
+								"type": "LATENT",
+								"link": 14
+							},
+							{
+								"localized_name": "vae",
+								"name": "vae",
+								"type": "VAE",
+								"link": 27
+							}
+						],
+						"outputs": [
+							{
+								"localized_name": "IMAGE",
+								"name": "IMAGE",
+								"type": "IMAGE",
+								"slot_index": 0,
+								"links": [16]
+							}
+						],
+						"properties": {
+							"cnr_id": "comfy-core",
+							"ver": "0.3.64",
+							"Node name for S&R": "VAEDecode",
+							"enableTabs": false,
+							"tabWidth": 65,
+							"tabXOffset": 10,
+							"hasSecondTab": false,
+							"secondTabText": "Send Back",
+							"secondTabOffset": 80,
+							"secondTabWidth": 65
+						},
+						"widgets_values": []
+					},
+					{
+						"id": 28,
+						"type": "UNETLoader",
+						"pos": [98.33622707345077, 198.3233509006745],
+						"size": [270, 97.77777353922527],
+						"flags": {},
+						"order": 5,
+						"mode": 0,
+						"inputs": [
+							{
+								"localized_name": "nom_unet",
+								"name": "unet_name",
+								"type": "COMBO",
+								"widget": {
+									"name": "unet_name"
+								},
+								"link": 38
+							}
+						],
+						"outputs": [
+							{
+								"localized_name": "MODÈLE",
+								"name": "MODEL",
+								"type": "MODEL",
+								"links": [26]
+							}
+						],
+						"properties": {
+							"cnr_id": "comfy-core",
+							"ver": "0.3.73",
+							"Node name for S&R": "UNETLoader",
+							"models": [
+								{
+									"name": "z_image_turbo_bf16.safetensors",
+									"url": "https://huggingface.co/Comfy-Org/z_image_turbo/resolve/main/split_files/diffusion_models/z_image_turbo_bf16.safetensors",
+									"directory": "diffusion_models"
+								}
+							],
+							"enableTabs": false,
+							"tabWidth": 65,
+							"tabXOffset": 10,
+							"hasSecondTab": false,
+							"secondTabText": "Send Back",
+							"secondTabOffset": 80,
+							"secondTabWidth": 65
+						},
+						"widgets_values": [
+							"z_image_turbo_bf16.safetensors",
+							"default"
+						]
+					},
+					{
+						"id": 13,
+						"type": "EmptySD3LatentImage",
+						"pos": [110.00833777087925, 630.0091490981031],
+						"size": [260, 120],
+						"flags": {},
+						"order": 3,
+						"mode": 0,
+						"inputs": [
+							{
+								"localized_name": "largeur",
+								"name": "width",
+								"type": "INT",
+								"widget": {
+									"name": "width"
+								},
+								"link": 35
+							},
+							{
+								"localized_name": "hauteur",
+								"name": "height",
+								"type": "INT",
+								"widget": {
+									"name": "height"
+								},
+								"link": 36
+							}
+						],
+						"outputs": [
+							{
+								"localized_name": "LATENT",
+								"name": "LATENT",
+								"type": "LATENT",
+								"slot_index": 0,
+								"links": [17]
+							}
+						],
+						"properties": {
+							"cnr_id": "comfy-core",
+							"ver": "0.3.64",
+							"Node name for S&R": "EmptySD3LatentImage",
+							"enableTabs": false,
+							"tabWidth": 65,
+							"tabXOffset": 10,
+							"hasSecondTab": false,
+							"secondTabText": "Send Back",
+							"secondTabOffset": 80,
+							"secondTabWidth": 65
+						},
+						"widgets_values": [1024, 1024, 1]
+					},
+					{
+						"id": 11,
+						"type": "ModelSamplingAuraFlow",
+						"pos": [880.0029741183322, 160.01270444681708],
+						"size": [310, 66.66666666666667],
+						"flags": {},
+						"order": 2,
+						"mode": 0,
+						"inputs": [
+							{
+								"localized_name": "modèle",
+								"name": "model",
+								"type": "MODEL",
+								"link": 71
+							}
+						],
+						"outputs": [
+							{
+								"localized_name": "MODÈLE",
+								"name": "MODEL",
+								"type": "MODEL",
+								"slot_index": 0,
+								"links": [13]
+							}
+						],
+						"properties": {
+							"cnr_id": "comfy-core",
+							"ver": "0.3.64",
+							"Node name for S&R": "ModelSamplingAuraFlow",
+							"enableTabs": false,
+							"tabWidth": 65,
+							"tabXOffset": 10,
+							"hasSecondTab": false,
+							"secondTabText": "Send Back",
+							"secondTabOffset": 80,
+							"secondTabWidth": 65
+						},
+						"widgets_values": [3]
+					},
+					{
+						"id": 27,
+						"type": "CLIPTextEncode",
+						"pos": [600, 240],
+						"size": [218.65, 88],
+						"flags": {},
+						"order": 4,
+						"mode": 0,
+						"inputs": [
+							{
+								"localized_name": "clip",
+								"name": "clip",
+								"type": "CLIP",
+								"link": 72
+							},
+							{
+								"localized_name": "text",
+								"name": "text",
+								"type": "STRING",
+								"widget": {
+									"name": "text"
+								},
+								"link": 202
+							}
+						],
+						"outputs": [
+							{
+								"localized_name": "CONDITIONNEMENT",
+								"name": "CONDITIONING",
+								"type": "CONDITIONING",
+								"links": [30, 32]
+							}
+						],
+						"properties": {
+							"cnr_id": "comfy-core",
+							"ver": "0.3.73",
+							"Node name for S&R": "CLIPTextEncode",
+							"enableTabs": false,
+							"tabWidth": 65,
+							"tabXOffset": 10,
+							"hasSecondTab": false,
+							"secondTabText": "Send Back",
+							"secondTabOffset": 80,
+							"secondTabWidth": 65
+						},
+						"widgets_values": [
+							"Latina female with thick wavy hair, harbor boats and pastel houses behind. Breezy seaside light, warm tones, cinematic close-up. "
+						]
+					},
+					{
+						"id": 3,
+						"type": "KSampler",
+						"pos": [880.0109156373278, 270.01262857503167],
+						"size": [315, 571],
+						"flags": {},
+						"order": 0,
+						"mode": 0,
+						"inputs": [
+							{
+								"localized_name": "model",
+								"name": "model",
+								"type": "MODEL",
+								"link": 13
+							},
+							{
+								"localized_name": "positive",
+								"name": "positive",
+								"type": "CONDITIONING",
+								"link": 30
+							},
+							{
+								"localized_name": "negative",
+								"name": "negative",
+								"type": "CONDITIONING",
+								"link": 33
+							},
+							{
+								"localized_name": "latent_image",
+								"name": "latent_image",
+								"type": "LATENT",
+								"link": 17
+							},
+							{
+								"localized_name": "seed",
+								"name": "seed",
+								"type": "INT",
+								"widget": {
+									"name": "seed"
+								},
+								"link": 185
+							},
+							{
+								"localized_name": "steps",
+								"name": "steps",
+								"type": "INT",
+								"widget": {
+									"name": "steps"
+								},
+								"link": 70
+							}
+						],
+						"outputs": [
+							{
+								"localized_name": "LATENT",
+								"name": "LATENT",
+								"type": "LATENT",
+								"slot_index": 0,
+								"links": [14]
+							}
+						],
+						"properties": {
+							"cnr_id": "comfy-core",
+							"ver": "0.3.64",
+							"Node name for S&R": "KSampler",
+							"enableTabs": false,
+							"tabWidth": 65,
+							"tabXOffset": 10,
+							"hasSecondTab": false,
+							"secondTabText": "Send Back",
+							"secondTabOffset": 80,
+							"secondTabWidth": 65
+						},
+						"widgets_values": [
+							0,
+							"randomize",
+							8,
+							1,
+							"res_multistep",
+							"simple",
+							1
+						]
+					}
+				],
+				"groups": [
+					{
+						"id": 2,
+						"title": "Step2 - Image size",
+						"bounding": [120, 560, 290, 200],
+						"color": "#3f789e",
+						"font_size": 24,
+						"flags": {}
+					},
+					{
+						"id": 3,
+						"title": "Step3 - Prompt",
+						"bounding": [400, 120, 450, 540],
+						"color": "#3f789e",
+						"font_size": 24,
+						"flags": {}
+					},
+					{
+						"id": 4,
+						"title": "Step1 - Load models",
+						"bounding": [120, 120, 290, 413.6],
+						"color": "#3f789e",
+						"font_size": 24,
+						"flags": {}
+					}
+				],
+				"links": [
+					{
+						"id": 32,
+						"origin_id": 27,
+						"origin_slot": 0,
+						"target_id": 33,
+						"target_slot": 0,
+						"type": "CONDITIONING"
+					},
+					{
+						"id": 14,
+						"origin_id": 3,
+						"origin_slot": 0,
+						"target_id": 8,
+						"target_slot": 0,
+						"type": "LATENT"
+					},
+					{
+						"id": 27,
+						"origin_id": 29,
+						"origin_slot": 0,
+						"target_id": 8,
+						"target_slot": 1,
+						"type": "VAE"
+					},
+					{
+						"id": 13,
+						"origin_id": 11,
+						"origin_slot": 0,
+						"target_id": 3,
+						"target_slot": 0,
+						"type": "MODEL"
+					},
+					{
+						"id": 30,
+						"origin_id": 27,
+						"origin_slot": 0,
+						"target_id": 3,
+						"target_slot": 1,
+						"type": "CONDITIONING"
+					},
+					{
+						"id": 33,
+						"origin_id": 33,
+						"origin_slot": 0,
+						"target_id": 3,
+						"target_slot": 2,
+						"type": "CONDITIONING"
+					},
+					{
+						"id": 17,
+						"origin_id": 13,
+						"origin_slot": 0,
+						"target_id": 3,
+						"target_slot": 3,
+						"type": "LATENT"
+					},
+					{
+						"id": 16,
+						"origin_id": 8,
+						"origin_slot": 0,
+						"target_id": -20,
+						"target_slot": 0,
+						"type": "IMAGE"
+					},
+					{
+						"id": 35,
+						"origin_id": -10,
+						"origin_slot": 1,
+						"target_id": 13,
+						"target_slot": 0,
+						"type": "INT"
+					},
+					{
+						"id": 36,
+						"origin_id": -10,
+						"origin_slot": 2,
+						"target_id": 13,
+						"target_slot": 1,
+						"type": "INT"
+					},
+					{
+						"id": 38,
+						"origin_id": -10,
+						"origin_slot": 3,
+						"target_id": 28,
+						"target_slot": 0,
+						"type": "COMBO"
+					},
+					{
+						"id": 39,
+						"origin_id": -10,
+						"origin_slot": 4,
+						"target_id": 30,
+						"target_slot": 0,
+						"type": "COMBO"
+					},
+					{
+						"id": 40,
+						"origin_id": -10,
+						"origin_slot": 5,
+						"target_id": 29,
+						"target_slot": 0,
+						"type": "COMBO"
+					},
+					{
+						"id": 70,
+						"origin_id": -10,
+						"origin_slot": 6,
+						"target_id": 3,
+						"target_slot": 5,
+						"type": "INT"
+					},
+					{
+						"id": 71,
+						"origin_id": -10,
+						"origin_slot": 7,
+						"target_id": 11,
+						"target_slot": 0,
+						"type": "MODEL"
+					},
+					{
+						"id": 72,
+						"origin_id": -10,
+						"origin_slot": 8,
+						"target_id": 27,
+						"target_slot": 0,
+						"type": "CLIP"
+					},
+					{
+						"id": 185,
+						"origin_id": -10,
+						"origin_slot": 9,
+						"target_id": 3,
+						"target_slot": 4,
+						"type": "INT"
+					},
+					{
+						"id": 202,
+						"origin_id": -10,
+						"origin_slot": 0,
+						"target_id": 27,
+						"target_slot": 1,
+						"type": "STRING"
+					}
+				],
+				"extra": {
+					"workflowRendererVersion": "LG"
+				}
+			}
+		]
+	},
+	"config": {},
+	"extra": {
+		"ds": {
+			"scale": 0.5366843515599167,
+			"offset": [840.5492785318108, 228.14874588439858]
+		},
+		"workflowRendererVersion": "LG",
+		"frontendVersion": "1.39.19",
+		"VHS_latentpreview": true,
+		"VHS_latentpreviewrate": 0,
+		"VHS_MetadataImage": true,
+		"VHS_KeepIntermediate": true
+	},
+	"version": 0.4
 }

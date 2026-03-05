@@ -36,6 +36,9 @@ Stackable multi-LoRA loader inspired by [rgthree's Power Lora Loader](https://gi
 - Connect the `enable` input to a boolean condition to bypass all LoRAs at once — useful with switch or router nodes.
 - **Two usage modes**: connect `model`/`clip` to apply LoRAs immediately, or leave them unconnected to only build a `LORA_STACK` without applying it. In stack-only mode the node acts as a LoRA definition block — chain several together, then feed the final stack to a downstream loader that has `model`/`clip` connected. This lets you define LoRAs once and apply them to multiple models at different points in the workflow.
 
+![Mega Lora Loader example workflow](examples/mega_lora_loader-screenshot.png)
+[Mega Lora Loader example workflow](examples/mega_lora_loader.json)
+
 **Inputs**
 
 | Input | Type | Default | Description |

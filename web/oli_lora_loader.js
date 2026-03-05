@@ -330,6 +330,20 @@ class OliLoraRowWidget {
 
 		ctx.globalAlpha = 1;
 		ctx.restore();
+
+		// Dim this row when the node's enable input is false.
+		// Done here (end of draw) rather than onDrawForeground so the overlay is
+		// guaranteed to paint on top of the row content regardless of LiteGraph
+		// draw ordering (which varies across ComfyUI versions).
+		const enableWidget = node.widgets?.find(w => w.name === "enable");
+		if (enableWidget?.value === false) {
+			ctx.save();
+			ctx.fillStyle = "rgba(0,0,0,0.65)";
+			ctx.beginPath();
+			ctx.roundRect(PAD, posY + 1, width - PAD * 2, height - 2, 3);
+			ctx.fill();
+			ctx.restore();
+		}
 	}
 
 	mouse(event, pos, node) {
@@ -473,25 +487,6 @@ app.registerExtension({
 				if (w._value?.lora != null) w._compat = compat[w._value.lora];
 			}
 			this.setDirtyCanvas?.(true);
-		};
-
-		// Dim lora rows visually when node is disabled
-		const _onDrawForeground = nodeType.prototype.onDrawForeground;
-		nodeType.prototype.onDrawForeground = function (ctx) {
-			_onDrawForeground?.apply(this, arguments);
-			const enableWidget = this.widgets?.find(w => w.name === "enable");
-			if (enableWidget?.value === false) {
-				const loraWgts = _getLoraWidgets(this);
-				if (!loraWgts.length) return;
-				const y0 = loraWgts[0].last_y;
-				const y1 = loraWgts[loraWgts.length - 1].last_y + ROW_H;
-				ctx.save();
-				ctx.fillStyle = "rgba(0,0,0,0.55)";
-				ctx.beginPath();
-				ctx.roundRect(PAD, y0, this.size[0] - PAD * 2, y1 - y0, 3);
-				ctx.fill();
-				ctx.restore();
-			}
 		};
 
 		// Right-click context menu on lora rows

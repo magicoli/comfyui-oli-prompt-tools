@@ -1,61 +1,165 @@
 {
-  "last_node_id": 3,
-  "last_link_id": 1,
-  "nodes": [
-    {
-      "id": 1,
-      "type": "CheckpointLoaderSimple",
-      "pos": [200, 200],
-      "size": {"0": 315, "1": 98},
-      "flags": {},
-      "order": 0,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {"name": "MODEL", "type": "MODEL", "links": [1], "slot_index": 0},
-        {"name": "CLIP",  "type": "CLIP",  "links": [],  "slot_index": 1},
-        {"name": "VAE",   "type": "VAE",   "links": [],  "slot_index": 2}
-      ],
-      "properties": {"Node name for S&R": "CheckpointLoaderSimple"},
-      "widgets_values": ["your_model.safetensors"]
-    },
-    {
-      "id": 2,
-      "type": "OliNodeLabel",
-      "pos": [580, 200],
-      "size": {"0": 260, "1": 90},
-      "flags": {},
-      "order": 1,
-      "mode": 0,
-      "inputs": [
-        {"name": "node", "type": "*", "link": 1}
-      ],
-      "outputs": [
-        {"name": "node",  "type": "*",      "links": [], "slot_index": 0},
-        {"name": "label", "type": "STRING", "links": [], "slot_index": 1}
-      ],
-      "properties": {"Node name for S&R": "OliNodeLabel"},
-      "widgets_values": [1]
-    },
-    {
-      "id": 3,
-      "type": "Note",
-      "pos": [200, 40],
-      "size": {"0": 640, "1": 130},
-      "flags": {},
-      "order": 2,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [],
-      "properties": {"text": "The Node Label node reads the title of the node connected to its input (depth=1 means direct parent).\n\nHere it reads the title of the CheckpointLoaderSimple and emits it as a STRING. The model value is passed through unchanged on the node output. Increase depth to travel further upstream — useful when you rename loader nodes to reflect the model they carry."},
-      "widgets_values": ["The Node Label node reads the title of the node connected to its input (depth=1 means direct parent).\n\nHere it reads the title of the CheckpointLoaderSimple and emits it as a STRING. The model value is passed through unchanged on the node output. Increase depth to travel further upstream — useful when you rename loader nodes to reflect the model they carry."]
-    }
-  ],
-  "links": [
-    [1, 1, 0, 2, 0, "MODEL"]
-  ],
-  "groups": [],
-  "config": {},
-  "extra": {"ds": {"scale": 1.0, "offset": [0, 0]}},
-  "version": 0.4
+	"last_node_id": 8,
+	"last_link_id": 4,
+	"nodes": [
+		{
+			"id": 1,
+			"type": "MarkdownNote",
+			"pos": [0, 0],
+			"size": [860, 110],
+			"flags": {},
+			"order": 0,
+			"mode": 0,
+			"inputs": [],
+			"outputs": [],
+			"title": "Node Label — usage",
+			"properties": {},
+			"widgets_values": ["Reads the **title** of the upstream node `depth` hops away and emits it as a STRING. The connected value passes through unchanged.\n\n**depth=1**: direct parent. **depth=2**: grandparent (useful when an intermediate node sits between the loader and the label reader).\n\nBest used when nodes are **renamed** to carry semantic meaning — e.g. rename a UNETLoader to \"Wan 1.3B\" and use the label output to drive a filename, a switch condition, or a display."]
+		},
+		{
+			"id": 2,
+			"type": "UNETLoader",
+			"pos": [0, 170],
+			"size": [210, 82],
+			"flags": {},
+			"order": 1,
+			"mode": 0,
+			"inputs": [],
+			"outputs": [
+				{"name": "MODEL", "type": "MODEL", "links": [1], "slot_index": 0}
+			],
+			"title": "Wan 1.3B",
+			"properties": {"Node name for S&R": "UNETLoader"},
+			"widgets_values": ["your_wan_model.safetensors", "default"]
+		},
+		{
+			"id": 3,
+			"type": "OliNodeLabel",
+			"pos": [240, 170],
+			"size": [260, 90],
+			"flags": {},
+			"order": 2,
+			"mode": 0,
+			"inputs": [
+				{"name": "node", "type": "*", "link": 1}
+			],
+			"outputs": [
+				{"name": "node",  "type": "*",      "links": [],  "slot_index": 0},
+				{"name": "label", "type": "STRING", "links": [2], "slot_index": 1}
+			],
+			"title": "Read model name",
+			"properties": {"Node name for S&R": "OliNodeLabel"},
+			"widgets_values": [1]
+		},
+		{
+			"id": 4,
+			"type": "PreviewAny",
+			"pos": [540, 170],
+			"size": [300, 60],
+			"flags": {},
+			"order": 3,
+			"mode": 0,
+			"inputs": [
+				{"name": "source", "type": "*", "link": 2}
+			],
+			"outputs": [],
+			"title": "→ should show: Wan 1.3B",
+			"properties": {"Node name for S&R": "PreviewAny"},
+			"widgets_values": [null]
+		},
+		{
+			"id": 5,
+			"type": "UNETLoader",
+			"pos": [0, 380],
+			"size": [210, 82],
+			"flags": {},
+			"order": 4,
+			"mode": 0,
+			"inputs": [],
+			"outputs": [
+				{"name": "MODEL", "type": "MODEL", "links": [3], "slot_index": 0}
+			],
+			"title": "HunyuanVideo",
+			"properties": {"Node name for S&R": "UNETLoader"},
+			"widgets_values": ["your_hunyuan_model.safetensors", "default"]
+		},
+		{
+			"id": 6,
+			"type": "OliLoraLoader",
+			"pos": [240, 380],
+			"size": [340, 130],
+			"flags": {},
+			"order": 5,
+			"mode": 0,
+			"inputs": [
+				{"name": "model", "type": "MODEL", "link": 3}
+			],
+			"outputs": [
+				{"name": "lora_stack", "type": "LORA_STACK", "links": [],  "slot_index": 0},
+				{"name": "MODEL",      "type": "MODEL",       "links": [4], "slot_index": 1},
+				{"name": "CLIP",       "type": "CLIP",        "links": [],  "slot_index": 2}
+			],
+			"properties": {"Node name for S&R": "OliLoraLoader"},
+			"widgets_values": [true]
+		},
+		{
+			"id": 7,
+			"type": "OliNodeLabel",
+			"pos": [620, 380],
+			"size": [260, 90],
+			"flags": {},
+			"order": 6,
+			"mode": 0,
+			"inputs": [
+				{"name": "node", "type": "*", "link": 4}
+			],
+			"outputs": [
+				{"name": "node",  "type": "*",      "links": [],  "slot_index": 0},
+				{"name": "label", "type": "STRING", "links": [],  "slot_index": 1}
+			],
+			"title": "depth=2 skips the loader",
+			"properties": {"Node name for S&R": "OliNodeLabel"},
+			"widgets_values": [2]
+		},
+		{
+			"id": 8,
+			"type": "MarkdownNote",
+			"pos": [540, 320],
+			"size": [420, 70],
+			"flags": {},
+			"order": 7,
+			"mode": 0,
+			"inputs": [],
+			"outputs": [],
+			"properties": {},
+			"widgets_values": ["depth=2 here: OliLoraLoader is hop 1, UNETLoader \"HunyuanVideo\" is hop 2. The label output will return **\"HunyuanVideo\"** even though the direct parent is the LoRA loader."]
+		}
+	],
+	"links": [
+		[1, 2, 0, 3, 0, "MODEL"],
+		[2, 3, 1, 4, 0, "STRING"],
+		[3, 5, 0, 6, 1, "MODEL"],
+		[4, 6, 1, 7, 0, "MODEL"]
+	],
+	"groups": [
+		{
+			"id": 1,
+			"title": "depth=1 — direct parent",
+			"bounding": [-20, 150, 880, 130],
+			"color": "#3f789e",
+			"font_size": 18,
+			"flags": {}
+		},
+		{
+			"id": 2,
+			"title": "depth=2 — skips intermediate nodes",
+			"bounding": [-20, 355, 920, 180],
+			"color": "#3f789e",
+			"font_size": 18,
+			"flags": {}
+		}
+	],
+	"config": {},
+	"extra": {"ds": {"scale": 1.0, "offset": [0, 0]}, "workflowRendererVersion": "LG"},
+	"version": 0.4
 }
