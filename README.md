@@ -61,12 +61,12 @@ Stackable multi-LoRA loader inspired by [rgthree's Power Lora Loader](https://gi
 
 ## Prompt Line Pick (Oli)
 
-Seed-driven reimplementation of the [easy promptLine](https://github.com/yolain/ComfyUI-Easy-Use) concept. Replaces `start_index + max_rows` with a single **seed** input. The selected line is determined by `sha256(seed:node_id) % len(lines)`.
+Reimplementation of the [easy promptLine](https://github.com/yolain/ComfyUI-Easy-Use) concept. Replaces `start_index` with a **seed**. The picked index is derived via `sha256(seed:node_id) % len(lines)`, giving a uniform distribution and full independence between instances: two pickers with the same seed pick at uncorrelated positions even when their lists have the same length or lengths that are multiples of each other. Output format is identical to easy promptLine — both STRING and COMBO return the list starting at the picked line.
 
-- **Uniform distribution** — every line has equal probability regardless of list length.
-- **Full independence** — multiple instances in the same workflow each pick independently, even with the same seed, because the node ID acts as a channel discriminator.
-- **No prime modulo management** — the SHA-256 hash eliminates correlation between lists of similar length.
-- Preserves the COMBO output for use with COMBO-typed inputs.
+- **Uniform distribution** — every line has equal probability regardless of list length, with no correlation between lists of similar sizes.
+- **Full independence** — multiple instances in the same workflow each pick at independent positions, even with the same seed, because the node ID is part of the hash.
+- **COMBO output** is compatible with any COMBO-typed input (e.g. SDXL Prompt Styler artist/style fields): the picked line is always the first element.
+- **Stackable** — connect `optional_prompt_list` from a previous picker; this node appends its pick and passes the extended list through `prompt_list`. Chain as many pickers as needed, then feed into easy promptList or any string-join node.
 
 **Inputs**
 
@@ -75,8 +75,18 @@ Seed-driven reimplementation of the [easy promptLine](https://github.com/yolain/
 | prompt | STRING | — | One item per line |
 | seed | INT | 0 | Workflow seed — share with KSampler for reproducible pairs |
 | remove_empty_lines | BOOLEAN | true | Strip blank lines before picking |
+| uncorrelate | BOOLEAN | true | When on: index = sha256(seed:node_id) % len — independent between instances. When off: index = seed % len — same as easy promptLine's start_index |
+| optional_prompt_list | LIST | — | Accumulated list from an upstream picker (optional) — same type as easy promptList |
 
-**Outputs:** `STRING`, `COMBO`
+**Outputs**
+
+| Output | Type | Description |
+|---|---|---|
+| STRING | STRING | The single picked line (scalar) |
+| COMBO | COMBO (list) | The single picked line, compatible with COMBO-typed inputs (SDXL Prompt Styler etc.) |
+| prompt_list | LIST | Incoming list with this pick appended — wire to the next picker or to easy promptList |
+| prompt_strings | STRING (list) | All strings in the accumulated list — same format as easy promptList's prompt_strings |
+| seed | INT | Pass-through — wire to the next picker without routing back |
 
 ---
 
