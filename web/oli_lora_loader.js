@@ -291,6 +291,13 @@ class OliLoraRowWidget {
 		if (node._dragWidget && node._dragWidget !== this) return false;
 
 		if (event.type === "pointerdown") {
+			// Handle drag takes priority — initiate reorder from widget.mouse()
+			// (avoids the LiteGraph event-routing issue that occurs when drag
+			// is started from onMouseDown)
+			if (this._rHandle && hit(pos, ...this._rHandle)) {
+				startRowDrag(node, this, () => _getLoraWidgets(node));
+				return true;
+			}
 			this._mouseDown  = true;
 			this._dragging   = false;
 			this._dragStartX = pos[0];
@@ -422,17 +429,6 @@ app.registerExtension({
 			this.setDirtyCanvas?.(true);
 		};
 
-		// onMouseDown — intercept handle before LiteGraph processes the event
-		const _onMouseDown = nodeType.prototype.onMouseDown;
-		nodeType.prototype.onMouseDown = function (e, pos) {
-			for (const w of _getLoraWidgets(this)) {
-				if (w._rHandle && hit(pos, ...w._rHandle)) {
-					startRowDrag(this, w, () => _getLoraWidgets(this));
-					return true;
-				}
-			}
-			return _onMouseDown?.call(this, e, pos) ?? false;
-		};
 
 		// Blue insertion line during drag
 		installDragForeground(nodeType, _getLoraWidgets);
