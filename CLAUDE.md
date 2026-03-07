@@ -44,6 +44,10 @@ When adding shared display or interaction logic, put it in `oli_widgets_common.j
 
 ## Working conventions
 
+### Git branches
+- Work on the `dev` branch; `master` is stable and public
+- Only the user merges dev → master and pushes
+
 ### Git commits
 - Write short, descriptive imperative messages (English)
 - Prefix with `(untested)` when the change hasn't been verified in ComfyUI yet; reword after a successful test
