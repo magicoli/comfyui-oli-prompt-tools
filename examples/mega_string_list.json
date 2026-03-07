@@ -1,0 +1,1103 @@
+{
+  "id": "98113afa-4c0b-4e9f-9e37-17be532ade4e",
+  "revision": 0,
+  "last_node_id": 4262,
+  "last_link_id": 7063,
+  "nodes": [
+    {
+      "id": 4237,
+      "type": "CLIPTextEncode",
+      "pos": [
+        3720,
+        2040
+      ],
+      "size": [
+        218.65,
+        88
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 6967
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "slot_index": 0,
+          "links": [
+            6971
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.15.1",
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "widgets_values": [
+        "text, watermark"
+      ]
+    },
+    {
+      "id": 4238,
+      "type": "EmptyLatentImage",
+      "pos": [
+        3720,
+        2200
+      ],
+      "size": [
+        210,
+        106
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "slot_index": 0,
+          "links": [
+            6972
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.15.1",
+        "Node name for S&R": "EmptyLatentImage"
+      },
+      "widgets_values": [
+        512,
+        512,
+        1
+      ]
+    },
+    {
+      "id": 4239,
+      "type": "PreviewImage",
+      "pos": [
+        4440,
+        1840
+      ],
+      "size": [
+        400,
+        440
+      ],
+      "flags": {},
+      "order": 16,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 6968
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.15.1",
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 4242,
+      "type": "CLIPTextEncode",
+      "pos": [
+        3720,
+        1920
+      ],
+      "size": [
+        218.65,
+        88
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 6975
+        },
+        {
+          "name": "text",
+          "type": "STRING",
+          "widget": {
+            "name": "text"
+          },
+          "link": 7052
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "slot_index": 0,
+          "links": [
+            6970
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.15.1",
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "widgets_values": [
+        "positive prompt"
+      ],
+      "color": "#232",
+      "bgcolor": "#353"
+    },
+    {
+      "id": 4241,
+      "type": "VAEDecode",
+      "pos": [
+        4240,
+        1840
+      ],
+      "size": [
+        151.10000228881836,
+        46
+      ],
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 6973
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 6974
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "slot_index": 0,
+          "links": [
+            6968,
+            6980
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.15.1",
+        "Node name for S&R": "VAEDecode"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 4223,
+      "type": "OliPromptLinePick",
+      "pos": [
+        2360,
+        840
+      ],
+      "size": [
+        243.51667022705078,
+        320
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "optional_prompt_list",
+          "shape": 7,
+          "type": "LIST",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": []
+        },
+        {
+          "name": "COMBO",
+          "shape": 6,
+          "type": "COMBO",
+          "links": []
+        },
+        {
+          "name": "prompt_list",
+          "type": "LIST",
+          "links": [
+            6952
+          ]
+        },
+        {
+          "name": "prompt_strings",
+          "shape": 6,
+          "type": "STRING",
+          "links": []
+        },
+        {
+          "name": "seed",
+          "type": "INT",
+          "links": [
+            6953
+          ]
+        }
+      ],
+      "title": "subject",
+      "properties": {
+        "aux_id": "magicoli/oli-prompt-tools",
+        "ver": "f6bf29fd4d6ed2a803e884d624f91c99dfb08128",
+        "Node name for S&R": "OliPromptLinePick"
+      },
+      "widgets_values": [
+        "a red panda on a rooftop\na golden retriever on the beach\na fox in a winter forest\na cat watching the rain\nan owl perched at dusk",
+        42,
+        "fixed",
+        true,
+        false,
+        ""
+      ]
+    },
+    {
+      "id": 4243,
+      "type": "CheckpointLoaderSimple",
+      "pos": [
+        3240,
+        1840
+      ],
+      "size": [
+        400,
+        98
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "slot_index": 0,
+          "links": [
+            6969,
+            6985
+          ]
+        },
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "slot_index": 1,
+          "links": [
+            6967,
+            6975
+          ]
+        },
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "slot_index": 2,
+          "links": [
+            6974
+          ]
+        }
+      ],
+      "title": "v1-5-pruned",
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.15.1",
+        "Node name for S&R": "CheckpointLoaderSimple"
+      },
+      "widgets_values": [
+        "v1-5-pruned-emaonly-fp16.safetensors"
+      ]
+    },
+    {
+      "id": 4224,
+      "type": "OliPromptLinePick",
+      "pos": [
+        2640,
+        840
+      ],
+      "size": [
+        243.51667022705078,
+        320
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "optional_prompt_list",
+          "shape": 7,
+          "type": "LIST",
+          "link": 6952
+        },
+        {
+          "name": "seed",
+          "type": "INT",
+          "widget": {
+            "name": "seed"
+          },
+          "link": 6953
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": []
+        },
+        {
+          "name": "COMBO",
+          "shape": 6,
+          "type": "COMBO",
+          "links": []
+        },
+        {
+          "name": "prompt_list",
+          "type": "LIST",
+          "links": [
+            7049
+          ]
+        },
+        {
+          "name": "prompt_strings",
+          "shape": 6,
+          "type": "STRING",
+          "links": []
+        },
+        {
+          "name": "seed",
+          "type": "INT",
+          "links": []
+        }
+      ],
+      "title": "style",
+      "properties": {
+        "aux_id": "magicoli/oli-prompt-tools",
+        "ver": "f6bf29fd4d6ed2a803e884d624f91c99dfb08128",
+        "Node name for S&R": "OliPromptLinePick"
+      },
+      "widgets_values": [
+        "cinematic photography\ndigital painting\nwatercolor illustration\noil on canvas\ndark fantasy concept art",
+        0,
+        "fixed",
+        true,
+        false,
+        ""
+      ]
+    },
+    {
+      "id": 4245,
+      "type": "SaveImage",
+      "pos": [
+        4880,
+        1840
+      ],
+      "size": [
+        480,
+        440
+      ],
+      "flags": {},
+      "order": 17,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 6980
+        },
+        {
+          "name": "filename_prefix",
+          "type": "STRING",
+          "widget": {
+            "name": "filename_prefix"
+          },
+          "link": 7045
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.15.1",
+        "Node name for S&R": "SaveImage"
+      },
+      "widgets_values": [
+        "ComfyUI"
+      ]
+    },
+    {
+      "id": 4244,
+      "type": "StringPreview",
+      "pos": [
+        4080,
+        1360
+      ],
+      "size": [
+        400,
+        88
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "input_string",
+          "type": "STRING",
+          "link": 7044
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output_string",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui_stringessentials",
+        "ver": "2.0.8",
+        "Node name for S&R": "StringPreview"
+      },
+      "widgets_values": [
+        "tests/MegaStringList BaseModel v1-5-pruned a fox in a winter forest watercolor illustration"
+      ]
+    },
+    {
+      "id": 4262,
+      "type": "OliMegaStringList",
+      "pos": [
+        3360,
+        880
+      ],
+      "size": [
+        320,
+        166
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "optional_prompt_list",
+          "shape": 7,
+          "type": "LIST",
+          "link": 7049
+        }
+      ],
+      "outputs": [
+        {
+          "name": "prompt_list",
+          "type": "LIST",
+          "links": [
+            7060
+          ]
+        },
+        {
+          "name": "prompt_strings",
+          "shape": 6,
+          "type": "STRING",
+          "links": null
+        },
+        {
+          "name": "num_strings",
+          "type": "INT",
+          "links": null
+        },
+        {
+          "name": "string",
+          "type": "STRING",
+          "links": [
+            7051,
+            7052
+          ]
+        }
+      ],
+      "properties": {
+        "aux_id": "magicoli/oli-prompt-tools",
+        "ver": "7ff7dfd94340702b55aa69b7ba83c144936e655b",
+        "Node name for S&R": "OliMegaStringList"
+      },
+      "widgets_values": [
+        true,
+        ", ",
+        {
+          "on": true,
+          "text": ""
+        }
+      ]
+    },
+    {
+      "id": 4248,
+      "type": "MarkdownNote",
+      "pos": [
+        3000,
+        880
+      ],
+      "size": [
+        320,
+        280
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "Inputs →",
+      "properties": {},
+      "widgets_values": [
+        "| Input | Description |\n| ------:| -----------:|\n| **optional_prompt_list** | stack of prompts (from a prompt tool node) or list, will be prepended to the result output |\n| **enable** | **if set to False (pass-through)**: process only the list from optional_prompt_list, ignore additional rows; **if set to True**: append the rows below|\n| **delimiter** | separator to use for string output|\n| string 1-n | string or list, can be custom string or content linked from other nodes, lists will be expanded before addition |"
+      ],
+      "color": "#233",
+      "bgcolor": "#355"
+    },
+    {
+      "id": 4240,
+      "type": "KSampler",
+      "pos": [
+        4000,
+        1840
+      ],
+      "size": [
+        210,
+        466
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 6969
+        },
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 6970
+        },
+        {
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 6971
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 6972
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "slot_index": 0,
+          "links": [
+            6973
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.15.1",
+        "Node name for S&R": "KSampler"
+      },
+      "widgets_values": [
+        42,
+        "fixed",
+        20,
+        8,
+        "euler",
+        "normal",
+        1
+      ]
+    },
+    {
+      "id": 4251,
+      "type": "MarkdownNote",
+      "pos": [
+        3440,
+        1360
+      ],
+      "size": [
+        240,
+        120
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "Mixed Inputs →",
+      "properties": {},
+      "widgets_values": [
+        "Different kind of items can be mixed and reordered to build the final list. Lists are expanded before addition. Strings can either be linked to another node output or typed. Drag the ≡ handle to reorder rows; use the toggle pill to enable/disable individual rows, or ✕ to delete."
+      ],
+      "color": "#233",
+      "bgcolor": "#355"
+    },
+    {
+      "id": 4246,
+      "type": "OliModelInfo",
+      "pos": [
+        3440,
+        1520
+      ],
+      "size": [
+        210,
+        160
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "shape": 7,
+          "type": "*",
+          "link": 6985
+        }
+      ],
+      "outputs": [
+        {
+          "name": "class_name",
+          "type": "STRING",
+          "links": [
+            7063
+          ]
+        },
+        {
+          "name": "dim",
+          "type": "INT",
+          "links": null
+        },
+        {
+          "name": "label",
+          "type": "STRING",
+          "links": [
+            7059
+          ]
+        }
+      ],
+      "properties": {
+        "aux_id": "magicoli/oli-prompt-tools",
+        "ver": "22174fd59cf6460b38e2abba262d278d9fa2d0cf",
+        "Node name for S&R": "OliModelInfo"
+      },
+      "widgets_values": [
+        "class:  BaseModel\ntype:   EPS\nparams: 860M\nformat: standard"
+      ]
+    },
+    {
+      "id": 4261,
+      "type": "OliMegaStringList",
+      "pos": [
+        3720,
+        1360
+      ],
+      "size": [
+        320,
+        262
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "optional_prompt_list",
+          "shape": 7,
+          "type": "LIST",
+          "link": null
+        },
+        {
+          "name": "string3",
+          "type": "*",
+          "widget": {
+            "name": "string3"
+          },
+          "link": 7063
+        },
+        {
+          "name": "string4",
+          "type": "*",
+          "widget": {
+            "name": "string4"
+          },
+          "link": 7059
+        },
+        {
+          "name": "string5",
+          "type": "*",
+          "widget": {
+            "name": "string5"
+          },
+          "link": 7060
+        },
+        {
+          "name": "string7",
+          "type": "*",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "prompt_list",
+          "type": "LIST",
+          "links": null
+        },
+        {
+          "name": "prompt_strings",
+          "shape": 6,
+          "type": "STRING",
+          "links": null
+        },
+        {
+          "name": "num_strings",
+          "type": "INT",
+          "links": null
+        },
+        {
+          "name": "string",
+          "type": "STRING",
+          "links": [
+            7044,
+            7045
+          ]
+        }
+      ],
+      "properties": {
+        "aux_id": "magicoli/oli-prompt-tools",
+        "ver": "7ff7dfd94340702b55aa69b7ba83c144936e655b",
+        "Node name for S&R": "OliMegaStringList"
+      },
+      "widgets_values": [
+        true,
+        " ",
+        {
+          "on": true,
+          "text": "tests/MegaStringList"
+        },
+        {
+          "on": true,
+          "text": ""
+        },
+        {
+          "on": true,
+          "text": ""
+        },
+        {
+          "on": true,
+          "text": ""
+        },
+        {
+          "on": true,
+          "text": ""
+        }
+      ]
+    },
+    {
+      "id": 4247,
+      "type": "MarkdownNote",
+      "pos": [
+        3720,
+        880
+      ],
+      "size": [
+        360,
+        200
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "← Outputs",
+      "properties": {},
+      "widgets_values": [
+        "| Output | Description |\n| ------:| -----------:|\n|**prompt_list**|accumulated pick stack (LIST type) — for stacking between compatible nodes|\n|**prompt_strings**|same items, as a STRING list — for sending to other nodes|\n|**string**|all items joined in a single string, separated by the delimiter|\n|**num_strings**|the number of items in the result|"
+      ],
+      "color": "#233",
+      "bgcolor": "#355"
+    },
+    {
+      "id": 4218,
+      "type": "StringPreview",
+      "pos": [
+        3720,
+        1120
+      ],
+      "size": [
+        360,
+        88
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "input_string",
+          "type": "STRING",
+          "link": 7051
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output_string",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui_stringessentials",
+        "ver": "2.0.8",
+        "Node name for S&R": "StringPreview"
+      },
+      "widgets_values": [
+        "a fox in a winter forest, watercolor illustration"
+      ]
+    }
+  ],
+  "links": [
+    [
+      6952,
+      4223,
+      2,
+      4224,
+      0,
+      "LIST"
+    ],
+    [
+      6953,
+      4223,
+      4,
+      4224,
+      1,
+      "INT"
+    ],
+    [
+      6967,
+      4243,
+      1,
+      4237,
+      0,
+      "CLIP"
+    ],
+    [
+      6968,
+      4241,
+      0,
+      4239,
+      0,
+      "IMAGE"
+    ],
+    [
+      6969,
+      4243,
+      0,
+      4240,
+      0,
+      "MODEL"
+    ],
+    [
+      6970,
+      4242,
+      0,
+      4240,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      6971,
+      4237,
+      0,
+      4240,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      6972,
+      4238,
+      0,
+      4240,
+      3,
+      "LATENT"
+    ],
+    [
+      6973,
+      4240,
+      0,
+      4241,
+      0,
+      "LATENT"
+    ],
+    [
+      6974,
+      4243,
+      2,
+      4241,
+      1,
+      "VAE"
+    ],
+    [
+      6975,
+      4243,
+      1,
+      4242,
+      0,
+      "CLIP"
+    ],
+    [
+      6980,
+      4241,
+      0,
+      4245,
+      0,
+      "IMAGE"
+    ],
+    [
+      6985,
+      4243,
+      0,
+      4246,
+      0,
+      "MODEL"
+    ],
+    [
+      7044,
+      4261,
+      3,
+      4244,
+      0,
+      "STRING"
+    ],
+    [
+      7045,
+      4261,
+      3,
+      4245,
+      1,
+      "STRING"
+    ],
+    [
+      7049,
+      4224,
+      2,
+      4262,
+      0,
+      "LIST"
+    ],
+    [
+      7051,
+      4262,
+      3,
+      4218,
+      0,
+      "STRING"
+    ],
+    [
+      7052,
+      4262,
+      3,
+      4242,
+      1,
+      "STRING"
+    ],
+    [
+      7059,
+      4246,
+      2,
+      4261,
+      2,
+      "STRING"
+    ],
+    [
+      7060,
+      4262,
+      0,
+      4261,
+      3,
+      "LIST"
+    ],
+    [
+      7063,
+      4246,
+      0,
+      4261,
+      1,
+      "STRING"
+    ]
+  ],
+  "groups": [
+    {
+      "id": 1,
+      "title": "Generate Image",
+      "bounding": [
+        3200,
+        1760,
+        2240,
+        560
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "id": 2,
+      "title": "Simple list join (e.g. join prompts)",
+      "bounding": [
+        2960,
+        800,
+        1160,
+        440
+      ],
+      "color": "#8AA",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "id": 3,
+      "title": "Mix and order custom sources (e.g. build file prefix)",
+      "bounding": [
+        3400,
+        1280,
+        1120,
+        440
+      ],
+      "color": "#8AA",
+      "font_size": 24,
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "workflowRendererVersion": "LG",
+    "ds": {
+      "scale": 1,
+      "offset": [
+        -2573.880238573487,
+        -693.1608464639011
+      ]
+    },
+    "frontendVersion": "1.39.19",
+    "VHS_latentpreview": true,
+    "VHS_latentpreviewrate": 0,
+    "VHS_MetadataImage": true,
+    "VHS_KeepIntermediate": true
+  },
+  "version": 0.4
+}
