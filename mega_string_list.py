@@ -67,8 +67,9 @@ class OliMegaStringList:
             "required": {},
             "optional": _FlexibleInputs(_any, {
                 "optional_prompt_list": ("LIST", {}),
-                "enable":    ("BOOLEAN", {"default": True, "label_on": "enabled", "label_off": "pass-through"}),
-                "delimiter": ("STRING",  {"default": ", "}),
+                "enable":          ("BOOLEAN", {"default": True, "label_on": "enabled", "label_off": "pass-through"}),
+                "delimiter":       ("STRING",  {"default": ", "}),
+                "_disabled_slots": ("STRING",  {"default": ""}),
                 # string1, string2, … are added dynamically by the JS frontend.
             }),
         }
@@ -90,6 +91,11 @@ class OliMegaStringList:
         delimiter = _first(_ensure_list(delimiter), default=", ")
         decoded_delim = _decode_escapes(delimiter)
 
+        # Disabled slots: comma-separated slot names toggled off in the UI.
+        # Extracted before slot processing so connected rows can also be skipped.
+        disabled_raw = _first(_ensure_list(kwargs.pop("_disabled_slots", None)), default="")
+        disabled = set(s.strip() for s in disabled_raw.split(",") if s.strip())
+
         # When disabled: pass through optional_prompt_list unchanged.
         if not enable:
             result = []
@@ -107,6 +113,8 @@ class OliMegaStringList:
 
         # 2. Per-row string slots — sorted by numeric suffix = widget order
         for key in _sorted_slot_keys(kwargs, "string"):
+            if key in disabled:
+                continue  # row toggled off (works for both widget and connected rows)
             slot_val = kwargs[key]
             # slot_val is a list (INPUT_IS_LIST) whose items are either:
             #   • dict  {on, text}  — unconnected widget value

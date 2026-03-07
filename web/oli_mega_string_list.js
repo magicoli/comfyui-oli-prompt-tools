@@ -32,6 +32,26 @@ import {
 const NODE_TYPE = "OliMegaStringList";
 const MIN_W     = 320;
 
+// ── OliHiddenWidget ───────────────────────────────────────────────────────────
+// Zero-height, invisible widget that holds the comma-separated list of
+// disabled slot names (_disabled_slots).  Python reads this to skip toggled-off
+// rows even when they are connected to a LiteGraph node (where the widget dict
+// {on,text} never reaches Python).
+
+class OliHiddenWidget {
+	constructor(name, value) {
+		this.name    = name;
+		this.type    = "custom";
+		this.value   = value ?? "";
+		this.options = {};
+		this.hidden  = true;   // LiteGraph skips drawing and height for hidden widgets
+	}
+
+	computeSize(w) { return [w, 0]; }
+
+	serializeValue() { return this.value; }
+}
+
 // ── OliStringRowWidget ────────────────────────────────────────────────────────
 
 class OliStringRowWidget {
@@ -199,6 +219,7 @@ class OliStringRowWidget {
 				node.removeInput(inpIdx);
 			}
 			_syncStringSlots(node);
+			_updateDisabledSlots(node);
 			node.setSize([node.size[0], node.computeSize()[1]]);
 			node.setDirtyCanvas(true, true);
 		}
@@ -206,6 +227,7 @@ class OliStringRowWidget {
 
 	_toggle(node) {
 		this._value.on = !this._value.on;
+		_updateDisabledSlots(node);
 		node.setDirtyCanvas(true);
 	}
 
@@ -251,6 +273,8 @@ function _renumberStringSlots(node) {
 		}
 	});
 	node._stringCounter = strWidgets.length;
+	// Slot names changed — rebuild the disabled list with the new names.
+	_updateDisabledSlots(node);
 }
 
 /**
@@ -279,8 +303,14 @@ function _addStringRow(node, value) {
  * Ensure exactly one empty placeholder row at the end.
  * Removes ALL empty rows anywhere in the list, then adds one at the end.
  * This handles legacy workflows that may have empty stubs in the middle.
+ *
+ * Also cleans up "orphan" string inputs that have no corresponding widget
+ * (can appear after configure or certain add/delete sequences) and ensures
+ * all remaining string inputs have inp.widget set so LiteGraph positions
+ * them inline with their widget row rather than in the default input area.
  */
 function _syncStringSlots(node) {
+	// 1. Remove empty placeholder widgets (and their inputs).
 	const toRemove = _getStringWidgets(node).filter((w) => w._isEmpty(node));
 	for (const w of toRemove) {
 		const widgetIdx = node.widgets.indexOf(w);
@@ -289,10 +319,44 @@ function _syncStringSlots(node) {
 		if (inpIdx >= 0) node.removeInput(inpIdx);
 	}
 
+	// 2. Remove orphan string inputs (input exists but no widget row).
+	//    These can appear after configure or repeated add/delete operations.
+	const widgetNames = new Set(_getStringWidgets(node).map((w) => w.name));
+	const orphans = (node.inputs ?? [])
+		.map((inp, i) => ({ inp, i }))
+		.filter(({ inp }) => /^string\d+$/.test(inp.name) && !widgetNames.has(inp.name))
+		.sort((a, b) => b.i - a.i);   // remove from end so earlier indices stay valid
+	for (const { i } of orphans) node.removeInput(i);
+
+	// 3. Ensure every remaining string input has inp.widget so LiteGraph
+	//    positions it at the widget row's Y, not in the top input area.
+	for (const inp of (node.inputs ?? [])) {
+		if (/^string\d+$/.test(inp.name) && !inp.widget) {
+			inp.widget = { name: inp.name };
+		}
+	}
+
+	// 4. Ensure placeholder at end.
 	const after = _getStringWidgets(node);
 	if (after.length === 0 || !after[after.length - 1]._isEmpty(node)) {
 		_addStringRow(node, null);
 	}
+}
+
+/**
+ * Rebuild the _disabled_slots hidden widget value from the current on/off
+ * state of all non-placeholder string rows.  Must be called whenever the
+ * toggle state or slot names change (toggle, delete, reorder, configure).
+ */
+function _updateDisabledSlots(node) {
+	const dsw = (node.widgets ?? []).find(
+		(w) => w instanceof OliHiddenWidget && w.name === "_disabled_slots",
+	);
+	if (!dsw) return;
+	const disabled = _getStringWidgets(node)
+		.filter((w) => !w._value.on && !w._isEmpty(node))
+		.map((w) => w.name);
+	dsw.value = disabled.join(",");
 }
 
 // ── Extension ─────────────────────────────────────────────────────────────────
@@ -322,6 +386,16 @@ app.registerExtension({
 			this._pendingClick  = null;
 			this._configuring   = false;
 
+			// Replace the auto-created STRING widget for _disabled_slots with a
+			// hidden zero-height widget that is invisible but still serialised.
+			const dsIdx = (this.widgets ?? []).findIndex((w) => w.name === "_disabled_slots");
+			if (dsIdx >= 0) {
+				const cur = this.widgets[dsIdx];
+				this.widgets.splice(dsIdx, 1, new OliHiddenWidget("_disabled_slots", cur.value ?? ""));
+			} else {
+				this.addCustomWidget(new OliHiddenWidget("_disabled_slots", ""));
+			}
+
 			_syncStringSlots(this);
 
 			const s = this.computeSize();
@@ -342,22 +416,47 @@ app.registerExtension({
 				.sort((a, b) => b.i - a.i)
 				.forEach(({ i }) => this.removeInput(i));
 
-			for (const v of info.widgets_values ?? []) {
-				if (typeof v === "boolean") {
-					const w = this.widgets?.find((w) => w.name === "enable");
-					if (w) w.value = v;
-				} else if (typeof v === "string") {
-					const w = this.widgets?.find((w) => w.name === "delimiter");
-					if (w) w.value = v;
-				} else if (v && typeof v === "object" && "text" in v) {
-					_addStringRow(this, v);
-				}
+			// Parse widgets_values positionally — type-based matching can't
+			// distinguish delimiter from _disabled_slots (both strings).
+			//
+			// Order (fixed, predictable):
+			//   [0] bool   → enable
+			//   [1] string → delimiter
+			//   [2] string → _disabled_slots  (new format; absent in old workflows)
+			//   [n…]       → {on,text} objects = string rows
+			//
+			// Old workflows: [0]=bool [1]=string [2]=object → dsVal defaults to "".
+			const wv  = info.widgets_values ?? [];
+			let   wvi = 0;
+
+			if (typeof wv[wvi] === "boolean") {
+				const w = this.widgets?.find((w) => w.name === "enable");
+				if (w) w.value = wv[wvi];
+				wvi++;
+			}
+			if (typeof wv[wvi] === "string") {
+				const w = this.widgets?.find((w) => w.name === "delimiter");
+				if (w) w.value = wv[wvi];
+				wvi++;
+			}
+			// Second consecutive string = _disabled_slots; only present in new format.
+			if (typeof wv[wvi] === "string") {
+				const dsw = (this.widgets ?? []).find((w) => w instanceof OliHiddenWidget);
+				if (dsw) dsw.value = wv[wvi];
+				wvi++;
+			}
+			for (let j = wvi; j < wv.length; j++) {
+				const v = wv[j];
+				if (v && typeof v === "object" && "text" in v) _addStringRow(this, v);
 			}
 
 			_configure?.apply(this, [{ ...info, widgets_values: undefined }]);
 
 			this._configuring = false;
 			_syncStringSlots(this);
+			// _disabled_slots was restored above; recompute from row on/off state
+			// so the hidden widget stays consistent with what Python will receive.
+			_updateDisabledSlots(this);
 		};
 
 		// onConnectionsChange — keep placeholder slot in sync ─────────────────
@@ -383,14 +482,17 @@ app.registerExtension({
 						if (wi >= 0) self.widgets.splice(wi, 1);
 						if (ii >= 0) self.removeInput(ii);
 						_syncStringSlots(self);
+						_updateDisabledSlots(self);
 						self.setSize([self.size[0], self.computeSize()[1]]);
 						self.setDirtyCanvas(true, true);
 					}, 0);
 					return;
 				}
 				_syncStringSlots(this);
+				_updateDisabledSlots(this);
 			} else {
 				_syncStringSlots(this);
+				_updateDisabledSlots(this);
 				const self = this;
 				setTimeout(() => self.setDirtyCanvas?.(true, true), 0);
 			}
