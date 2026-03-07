@@ -2,11 +2,14 @@
 
 A collection of practical ComfyUI utility nodes designed to reduce workflow complexity. Each node solves a specific recurring problem — avoiding VRAM crashes, picking prompts deterministically, filtering incompatible LoRAs, or labelling model pipelines. No external dependencies beyond the standard ComfyUI environment.
 
+[![GitHub Sponsors](https://img.shields.io/badge/GitHub_Sponsors-ea4aaa?style=flat&logo=github-sponsors&logoColor=white)](https://github.com/sponsors/magicoli) [![Buy Me a Coffee](https://img.shields.io/badge/Buy_Me_a_Coffee-ffdd00?style=flat&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/magicoli) [![✨ Tip the Wizard](https://img.shields.io/badge/Tip_the_Wizard-7b2d8b?style=flat&logo=https://magiiic.org/assets/magiiic-logo-v5-icon-white-14x14.png&logoColor=white)](https://magiiic.org/donate/)
+
 ## Nodes
 
 | Node | Category | Purpose |
 |---|---|---|
 | [Mega Lora Loader](#mega-lora-loader-oli) | Oli/loaders | Stackable multi-LoRA loader with automatic compatibility filtering |
+| [Mega String List](#mega-string-list-oli) | Oli/prompt | Collects strings and lists from multiple sources into a unified list |
 | [Prompt Line Pick](#prompt-line-pick-oli) | Oli/prompt | Seed-driven line picker — uniform distribution, fully independent instances |
 | [Video Frame Limit](#video-frame-limit-oli) | Oli/utils | Caps video duration to avoid VRAM out-of-memory crashes |
 | [Model Info](#model-info-oli) | Oli/utils | Returns architecture details of any connected model |
@@ -36,7 +39,7 @@ Stackable multi-LoRA loader inspired by [rgthree's Power Lora Loader](https://gi
 - Connect the `enable` input to a boolean condition to bypass all LoRAs at once — useful with switch or router nodes.
 - **Two usage modes**: connect `model`/`clip` to apply LoRAs immediately, or leave them unconnected to only build a `LORA_STACK` without applying it. In stack-only mode the node acts as a LoRA definition block — chain several together, then feed the final stack to a downstream loader that has `model`/`clip` connected. This lets you define LoRAs once and apply them to multiple models at different points in the workflow.
 
-![Mega Lora Loader example workflow](examples/mega_lora_loader-screenshot.png)
+![Mega Lora Loader example screenshot](examples/mega_lora_loader.png)
 [Mega Lora Loader example workflow](examples/mega_lora_loader.json)
 
 **Inputs**
@@ -59,6 +62,41 @@ Stackable multi-LoRA loader inspired by [rgthree's Power Lora Loader](https://gi
 
 ---
 
+## Mega String List (Oli)
+
+Collects strings and lists from multiple sources into a single unified list. Each row can hold either **typed text** or a **connected node output** (STRING, LIST, or any type) — no separate input slots needed for typed vs. connected content. Rows can be individually toggled on/off, reordered by drag, or deleted. Lists from connected nodes are automatically expanded before addition.
+
+- **Mixed sources** — combine typed strings, node outputs, and upstream prompt lists in any order in a single node.
+- **Drag to reorder** — grab the ≡ handle to change the order of rows; the final list follows the visual order.
+- **Per-row toggle** — disable individual rows without deleting them using the pill switch.
+- **Chainable** — wire `optional_prompt_list` from a Prompt Line Pick or another Mega String List; the incoming list is prepended to the result.
+- **Pass-through mode** — when `enable` is set to False (labelled *pass-through*), the node returns only `optional_prompt_list` unchanged and ignores all rows. Useful for temporarily disabling additions or for conditional branching.
+- **Delimiter** — used both to split typed multi-value text into separate items, and to join all items into the `string` output. Supports escape sequences (`\n`, `\t`, …).
+- Items equal to `"none"` (case-insensitive) are automatically removed — SDXL Prompt Styler's empty/ignore sentinel.
+
+![Mega String List example screenshot](examples/mega_string_list.png)
+[Mega String List example workflow](examples/mega_string_list.json)
+
+**Inputs**
+
+| Input | Type | Default | Description |
+|---|---|---|---|
+| optional_prompt_list | LIST | — | Accumulated list from an upstream node — prepended to the result (optional) |
+| enable | BOOLEAN | true | When false (*pass-through*): return only optional_prompt_list, ignore all rows |
+| delimiter | STRING | `, ` | Splits typed text into items; also used to join the `string` output |
+| string 1-n | \* | — | Dynamic rows — type text directly or connect any node output; lists are expanded |
+
+**Outputs**
+
+| Output | Type | Description |
+|---|---|---|
+| prompt_list | LIST | Combined list — wire to another Mega String List or Prompt Line Pick |
+| prompt_strings | STRING (list) | Same items as a STRING output list — compatible with easy promptList |
+| num_strings | INT | Number of items in the combined list |
+| string | STRING | All items joined by the delimiter |
+
+---
+
 ## Prompt Line Pick (Oli)
 
 Reimplementation of the [easy promptLine](https://github.com/yolain/ComfyUI-Easy-Use) concept. Replaces `start_index` with a **seed**. The picked index is derived via `sha256(seed:node_id) % len(lines)`, giving a uniform distribution and full independence between instances: two pickers with the same seed pick at uncorrelated positions even when their lists have the same length or lengths that are multiples of each other. Output format is identical to easy promptLine — both STRING and COMBO return the list starting at the picked line.
@@ -67,6 +105,9 @@ Reimplementation of the [easy promptLine](https://github.com/yolain/ComfyUI-Easy
 - **Full independence** — multiple instances in the same workflow each pick at independent positions, even with the same seed, because the node ID is part of the hash.
 - **COMBO output** is compatible with any COMBO-typed input (e.g. SDXL Prompt Styler artist/style fields): the picked line is always the first element.
 - **Stackable** — connect `optional_prompt_list` from a previous picker; this node appends its pick and passes the extended list through `prompt_list`. Chain as many pickers as needed, then feed into easy promptList or any string-join node.
+
+![Prompt Line Pick example screenshot](examples/prompt_line_pick.png)
+[Prompt Line Pick example workflow](examples/prompt_line_pick.json)
 
 **Inputs**
 
@@ -103,6 +144,9 @@ Where `TENSOR_COPIES = 5` (Q, K, V, attention output, residual activations) and 
 
 The node displays detected VRAM, model name, hidden dim, requested and capped frames directly on the canvas after each execution — making it usable as a standalone config panel for the whole generation.
 
+![Video Frame Limit example screenshot](examples/video_frame_limit.png)
+[Video Frame Limit example workflow](examples/video_frame_limit.json)
+
 **Inputs**
 
 | Input | Type | Default | Description |
@@ -130,6 +174,9 @@ The node displays detected VRAM, model name, hidden dim, requested and capped fr
 
 Returns architecture details of any connected model (MODEL, CLIP, VAE, or any other type). Also reads the upstream node's title. Useful for debugging model pipelines, inspecting what arrived on a bus, or driving conditional logic based on model class.
 
+![Model Info example screenshot](examples/model_info.png)
+[Model Info example workflow](examples/model_info.json)
+
 **Inputs**
 
 | Input | Type | Description |
@@ -150,6 +197,9 @@ Returns architecture details of any connected model (MODEL, CLIP, VAE, or any ot
 
 Passes any value through and outputs the title of the upstream node at a configurable traversal depth. Useful for labelling outputs, routing between branches, or building self-documenting workflows where node titles carry semantic meaning.
 
+![Node Label example screenshot](examples/node_label.png)
+[Node Label example workflow](examples/node_label.json)
+
 **Inputs**
 
 | Input | Type | Default | Description |
@@ -165,18 +215,6 @@ Passes any value through and outputs the title of the upstream node at a configu
 | label | STRING | Title of the node `depth` hops upstream |
 
 ---
-
-## Examples
-
-The `examples/` directory contains minimal starter workflows for each node. Open them in ComfyUI and wire them into your own workflow.
-
-| File | Node demonstrated |
-|---|---|
-| `examples/mega_lora_loader.json` | Mega Lora Loader |
-| `examples/prompt_line_pick.json` | Prompt Line Pick |
-| `examples/video_frame_limit.json` | Video Frame Limit |
-| `examples/model_info.json` | Model Info |
-| `examples/node_label.json` | Node Label |
 
 ## License
 

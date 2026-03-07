@@ -1,165 +1,456 @@
 {
-	"last_node_id": 8,
-	"last_link_id": 4,
-	"nodes": [
-		{
-			"id": 1,
-			"type": "MarkdownNote",
-			"pos": [0, 0],
-			"size": [860, 110],
-			"flags": {},
-			"order": 0,
-			"mode": 0,
-			"inputs": [],
-			"outputs": [],
-			"title": "Node Label — usage",
-			"properties": {},
-			"widgets_values": ["Reads the **title** of the upstream node `depth` hops away and emits it as a STRING. The connected value passes through unchanged.\n\n**depth=1**: direct parent. **depth=2**: grandparent (useful when an intermediate node sits between the loader and the label reader).\n\nBest used when nodes are **renamed** to carry semantic meaning — e.g. rename a UNETLoader to \"Wan 1.3B\" and use the label output to drive a filename, a switch condition, or a display."]
-		},
-		{
-			"id": 2,
-			"type": "UNETLoader",
-			"pos": [0, 170],
-			"size": [210, 82],
-			"flags": {},
-			"order": 1,
-			"mode": 0,
-			"inputs": [],
-			"outputs": [
-				{"name": "MODEL", "type": "MODEL", "links": [1], "slot_index": 0}
-			],
-			"title": "Wan 1.3B",
-			"properties": {"Node name for S&R": "UNETLoader"},
-			"widgets_values": ["your_wan_model.safetensors", "default"]
-		},
-		{
-			"id": 3,
-			"type": "OliNodeLabel",
-			"pos": [240, 170],
-			"size": [260, 90],
-			"flags": {},
-			"order": 2,
-			"mode": 0,
-			"inputs": [
-				{"name": "node", "type": "*", "link": 1}
-			],
-			"outputs": [
-				{"name": "node",  "type": "*",      "links": [],  "slot_index": 0},
-				{"name": "label", "type": "STRING", "links": [2], "slot_index": 1}
-			],
-			"title": "Read model name",
-			"properties": {"Node name for S&R": "OliNodeLabel"},
-			"widgets_values": [1]
-		},
-		{
-			"id": 4,
-			"type": "PreviewAny",
-			"pos": [540, 170],
-			"size": [300, 60],
-			"flags": {},
-			"order": 3,
-			"mode": 0,
-			"inputs": [
-				{"name": "source", "type": "*", "link": 2}
-			],
-			"outputs": [],
-			"title": "→ should show: Wan 1.3B",
-			"properties": {"Node name for S&R": "PreviewAny"},
-			"widgets_values": [null]
-		},
-		{
-			"id": 5,
-			"type": "UNETLoader",
-			"pos": [0, 380],
-			"size": [210, 82],
-			"flags": {},
-			"order": 4,
-			"mode": 0,
-			"inputs": [],
-			"outputs": [
-				{"name": "MODEL", "type": "MODEL", "links": [3], "slot_index": 0}
-			],
-			"title": "HunyuanVideo",
-			"properties": {"Node name for S&R": "UNETLoader"},
-			"widgets_values": ["your_hunyuan_model.safetensors", "default"]
-		},
-		{
-			"id": 6,
-			"type": "OliLoraLoader",
-			"pos": [240, 380],
-			"size": [340, 130],
-			"flags": {},
-			"order": 5,
-			"mode": 0,
-			"inputs": [
-				{"name": "model", "type": "MODEL", "link": 3}
-			],
-			"outputs": [
-				{"name": "lora_stack", "type": "LORA_STACK", "links": [],  "slot_index": 0},
-				{"name": "MODEL",      "type": "MODEL",       "links": [4], "slot_index": 1},
-				{"name": "CLIP",       "type": "CLIP",        "links": [],  "slot_index": 2}
-			],
-			"properties": {"Node name for S&R": "OliLoraLoader"},
-			"widgets_values": [true]
-		},
-		{
-			"id": 7,
-			"type": "OliNodeLabel",
-			"pos": [620, 380],
-			"size": [260, 90],
-			"flags": {},
-			"order": 6,
-			"mode": 0,
-			"inputs": [
-				{"name": "node", "type": "*", "link": 4}
-			],
-			"outputs": [
-				{"name": "node",  "type": "*",      "links": [],  "slot_index": 0},
-				{"name": "label", "type": "STRING", "links": [],  "slot_index": 1}
-			],
-			"title": "depth=2 skips the loader",
-			"properties": {"Node name for S&R": "OliNodeLabel"},
-			"widgets_values": [2]
-		},
-		{
-			"id": 8,
-			"type": "MarkdownNote",
-			"pos": [540, 320],
-			"size": [420, 70],
-			"flags": {},
-			"order": 7,
-			"mode": 0,
-			"inputs": [],
-			"outputs": [],
-			"properties": {},
-			"widgets_values": ["depth=2 here: OliLoraLoader is hop 1, UNETLoader \"HunyuanVideo\" is hop 2. The label output will return **\"HunyuanVideo\"** even though the direct parent is the LoRA loader."]
-		}
-	],
-	"links": [
-		[1, 2, 0, 3, 0, "MODEL"],
-		[2, 3, 1, 4, 0, "STRING"],
-		[3, 5, 0, 6, 1, "MODEL"],
-		[4, 6, 1, 7, 0, "MODEL"]
-	],
-	"groups": [
-		{
-			"id": 1,
-			"title": "depth=1 — direct parent",
-			"bounding": [-20, 150, 880, 130],
-			"color": "#3f789e",
-			"font_size": 18,
-			"flags": {}
-		},
-		{
-			"id": 2,
-			"title": "depth=2 — skips intermediate nodes",
-			"bounding": [-20, 355, 920, 180],
-			"color": "#3f789e",
-			"font_size": 18,
-			"flags": {}
-		}
-	],
-	"config": {},
-	"extra": {"ds": {"scale": 1.0, "offset": [0, 0]}, "workflowRendererVersion": "LG"},
-	"version": 0.4
+  "id": "d6aae724-3968-4f56-8893-ff52a59fa434",
+  "revision": 0,
+  "last_node_id": 17,
+  "last_link_id": 11,
+  "nodes": [
+    {
+      "id": 10,
+      "type": "OliNodeLabel",
+      "pos": [
+        800,
+        200
+      ],
+      "size": [
+        270,
+        78
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "node",
+          "shape": 7,
+          "type": "*",
+          "link": 8
+        }
+      ],
+      "outputs": [
+        {
+          "name": "node",
+          "type": "*",
+          "links": null
+        },
+        {
+          "name": "label",
+          "type": "STRING",
+          "links": [
+            7
+          ]
+        }
+      ],
+      "properties": {
+        "aux_id": "magicoli/oli-prompt-tools",
+        "ver": "e829e12e6bb9ef2d2f43dd0e7b6627342e50a857",
+        "Node name for S&R": "OliNodeLabel"
+      },
+      "widgets_values": [
+        1
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    },
+    {
+      "id": 15,
+      "type": "CheckpointLoaderSimple",
+      "pos": [
+        40,
+        440
+      ],
+      "size": [
+        320,
+        98
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "slot_index": 0,
+          "links": [
+            11
+          ]
+        },
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "slot_index": 1,
+          "links": []
+        },
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "slot_index": 2,
+          "links": []
+        }
+      ],
+      "title": "Image Model",
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.15.1",
+        "Node name for S&R": "CheckpointLoaderSimple"
+      },
+      "widgets_values": [
+        "v1-5-pruned-emaonly-fp16.safetensors"
+      ]
+    },
+    {
+      "id": 6,
+      "type": "OliLoraLoader",
+      "pos": [
+        400,
+        440
+      ],
+      "size": [
+        340,
+        98
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "lora_stack",
+          "shape": 7,
+          "type": "LORA_STACK",
+          "link": null
+        },
+        {
+          "name": "model",
+          "shape": 7,
+          "type": "MODEL",
+          "link": 11
+        },
+        {
+          "name": "clip",
+          "shape": 7,
+          "type": "CLIP",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "lora_stack",
+          "type": "LORA_STACK",
+          "slot_index": 0,
+          "links": []
+        },
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "slot_index": 1,
+          "links": [
+            9
+          ]
+        },
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "slot_index": 2,
+          "links": []
+        }
+      ],
+      "properties": {
+        "aux_id": "magicoli/oli-prompt-tools",
+        "ver": "e829e12e6bb9ef2d2f43dd0e7b6627342e50a857",
+        "Node name for S&R": "OliLoraLoader"
+      },
+      "widgets_values": [
+        true,
+        ""
+      ]
+    },
+    {
+      "id": 17,
+      "type": "OliNodeLabel",
+      "pos": [
+        800,
+        440
+      ],
+      "size": [
+        270,
+        78
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "node",
+          "shape": 7,
+          "type": "*",
+          "link": 9
+        }
+      ],
+      "outputs": [
+        {
+          "name": "node",
+          "type": "*",
+          "links": null
+        },
+        {
+          "name": "label",
+          "type": "STRING",
+          "links": [
+            10
+          ]
+        }
+      ],
+      "properties": {
+        "aux_id": "magicoli/oli-prompt-tools",
+        "ver": "e829e12e6bb9ef2d2f43dd0e7b6627342e50a857",
+        "Node name for S&R": "OliNodeLabel"
+      },
+      "widgets_values": [
+        2
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    },
+    {
+      "id": 8,
+      "type": "MarkdownNote",
+      "pos": [
+        800,
+        560
+      ],
+      "size": [
+        280,
+        88
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "↑ depth",
+      "properties": {},
+      "widgets_values": [
+        "depth=2 here: OliLoraLoader is hop 1, UNETLoader \"HunyuanVideo\" is hop 2. The label output will return **\"HunyuanVideo\"** even though the direct parent is the LoRA loader."
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    },
+    {
+      "id": 12,
+      "type": "StringPreview",
+      "pos": [
+        1120,
+        440
+      ],
+      "size": [
+        240,
+        88
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "input_string",
+          "type": "STRING",
+          "link": 10
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output_string",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui_stringessentials",
+        "ver": "2.0.8"
+      },
+      "widgets_values": [
+        "Image Model"
+      ]
+    },
+    {
+      "id": 1,
+      "type": "MarkdownNote",
+      "pos": [
+        0,
+        160
+      ],
+      "size": [
+        440,
+        160
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "Node Label — usage",
+      "properties": {},
+      "widgets_values": [
+        "Reads the **title** of the upstream node `depth` hops away and emits it as a STRING. The connected value passes through unchanged.\n\n**depth=1**: direct parent. **depth=2**: grandparent (useful when an intermediate node sits between the loader and the label reader).\n\nBest used when nodes are **renamed** to carry semantic meaning — e.g. rename a UNETLoader to \"Wan 1.3B\" and use the label output to drive a filename, a switch condition, or a display."
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    },
+    {
+      "id": 9,
+      "type": "StringPreview",
+      "pos": [
+        1120,
+        200
+      ],
+      "size": [
+        240,
+        88
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "input_string",
+          "type": "STRING",
+          "link": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output_string",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui_stringessentials",
+        "ver": "2.0.8"
+      },
+      "widgets_values": [
+        "The title"
+      ]
+    },
+    {
+      "id": 14,
+      "type": "PrimitiveString",
+      "pos": [
+        520,
+        200
+      ],
+      "size": [
+        240,
+        58
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            8
+          ]
+        }
+      ],
+      "title": "The title",
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.16.3",
+        "Node name for S&R": "PrimitiveString"
+      },
+      "widgets_values": [
+        "The Ultimate Question"
+      ]
+    }
+  ],
+  "links": [
+    [
+      7,
+      10,
+      1,
+      9,
+      0,
+      "STRING"
+    ],
+    [
+      8,
+      14,
+      0,
+      10,
+      0,
+      "STRING"
+    ],
+    [
+      9,
+      6,
+      1,
+      17,
+      0,
+      "MODEL"
+    ],
+    [
+      10,
+      17,
+      1,
+      12,
+      0,
+      "STRING"
+    ],
+    [
+      11,
+      15,
+      0,
+      6,
+      1,
+      "MODEL"
+    ]
+  ],
+  "groups": [
+    {
+      "id": 1,
+      "title": "depth=1 — direct parent",
+      "bounding": [
+        480,
+        120,
+        920,
+        200
+      ],
+      "color": "#3f789e",
+      "font_size": 18,
+      "flags": {}
+    },
+    {
+      "id": 2,
+      "title": "depth=2 — skips intermediate nodes",
+      "bounding": [
+        0,
+        360,
+        1400,
+        320
+      ],
+      "color": "#3f789e",
+      "font_size": 18,
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 1,
+      "offset": [
+        294.9373403456053,
+        83.73246431254714
+      ]
+    },
+    "workflowRendererVersion": "LG",
+    "frontendVersion": "1.39.19",
+    "VHS_latentpreview": true,
+    "VHS_latentpreviewrate": 0,
+    "VHS_MetadataImage": true,
+    "VHS_KeepIntermediate": true
+  },
+  "version": 0.4
 }
