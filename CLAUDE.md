@@ -1,45 +1,57 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Guidance for Claude Code when working in this repository.
 
-## What this is
+For node documentation (what each node does, inputs/outputs, examples), refer to **README.md** — it is the single source of truth for that.
 
-A ComfyUI custom node pack. No build step, no test suite, no linting config. Development cycle: edit files, restart ComfyUI (or reload custom nodes via ComfyUI Manager).
+## Project overview
 
-To install/run: drop this directory into `ComfyUI/custom_nodes/` and start ComfyUI. No pip installs required — all dependencies (torch, safetensors) come with ComfyUI.
+A ComfyUI custom node pack. No build step, no test suite, no linting config.
+
+**Dev cycle:** edit files → restart ComfyUI or reload custom nodes via ComfyUI Manager → test manually in the UI.
 
 ## Architecture
 
-### Python node structure
+### Python nodes
 
-Each node is one file (`prompt_line_pick.py`, `lora_loader.py`, etc.) containing:
-- A node class with class-level attributes: `INPUT_TYPES()`, `RETURN_TYPES`, `RETURN_NAMES`, `FUNCTION`, `CATEGORY`
-- `NODE_CLASS_MAPPINGS` and `NODE_DISPLAY_NAME_MAPPINGS` dicts at module level
+Each node lives in its own file (`lora_loader.py`, `mega_string_list.py`, …) and exports:
+- A node class with `INPUT_TYPES()`, `RETURN_TYPES`, `RETURN_NAMES`, `FUNCTION`, `CATEGORY`
+- `NODE_CLASS_MAPPINGS` and `NODE_DISPLAY_NAME_MAPPINGS` at module level
 
-`__init__.py` merges all those dicts into the top-level mappings that ComfyUI discovers. To add a new node: create `newnode.py`, then import both dicts into `__init__.py`.
+`__init__.py` merges all those dicts for ComfyUI discovery. To add a node: create `newnode.py`, import its dicts in `__init__.py`.
 
-### Key patterns
-
-**Wildcard input type** — `_AnyType(str)` with `__ne__` always returning `False` makes ComfyUI accept any connection type. Used in `lora_loader.py` and `node_label.py`.
-
-**Dynamic widget inputs** — `_FlexibleInputs(dict)` overrides `__contains__` to always return `True`, allowing dynamically-named `lora_N` kwargs to reach the Python `execute()` via `**kwargs` (see `lora_loader.py`).
-
-**Frontend data return** — Nodes with `OUTPUT_NODE = True` can return `{"ui": {...}, "result": (...)}` instead of a plain tuple. The `ui` dict is sent to the JS frontend; `result` is the normal node output. Used by `OliLoraLoader` (compat status), `OliModelInfo`, and `OliVideoFrameLimit` (display text).
-
-**Always re-execute** — `IS_CHANGED` returning `float("nan")` forces ComfyUI to run the node on every queue. Used by `OliModelInfo` and `OliNodeLabel` since their output depends on the workflow graph structure (via `EXTRA_PNGINFO`), not just input values.
-
-**Workflow graph traversal** — `utils.get_upstream_label()` receives `EXTRA_PNGINFO` (the full workflow JSON) and `UNIQUE_ID` (this node's ID) as hidden inputs, then walks the `nodes`/`links` arrays to find upstream node titles. This is how `OliNodeLabel` and `OliModelInfo` read the title of whatever node is connected to them.
-
-### Shared utilities (`utils.py`)
-
-- `get_model_details(model)` — introspects any ComfyUI model object (MODEL/CLIP/VAE) to extract class name and hidden dimension. Uses `_safe_getattr` to avoid triggering ComfyUI's noisy `__getattr__` warnings on model config objects.
-- `get_upstream_label(extra_pnginfo, unique_id, input_name, depth)` — workflow graph traversal as described above.
+**Key patterns:**
+- `_AnyType(str)` with `__ne__` always `False` — wildcard input type accepted by any connection
+- `_FlexibleInputs(dict)` with `__contains__` always `True` — lets dynamic `lora_N` / `string_N` kwargs reach `execute(**kwargs)`
+- `INPUT_IS_LIST = True` — ComfyUI delivers the full list without batch-expanding; used by `OliMegaStringList`
+- `IS_CHANGED` returning `float("nan")` — forces re-execution every queue (used when output depends on graph structure, not just values)
+- `OUTPUT_NODE = True` with `{"ui": {…}, "result": (…)}` — sends display data to the JS frontend
 
 ### Frontend (`web/`)
 
-- `oli_prompt_tools.js` — registers extensions for `OliPromptLinePick` (adds "get values from COMBO link" button), `OliModelInfo`, and `OliVideoFrameLimit` (both add a read-only multiline STRING widget that displays the `ui.text` payload after execution).
-- `oli_lora_loader.js` — fully custom widget (`OliLoraRowWidget`) drawn on the LiteGraph canvas. Each LoRA row is a custom widget with toggle, name, strength controls, and delete. Compat status (`ui.compat`) received in `onExecuted` colors the toggle (green=ok, red=incompatible, grey=disabled). The "➕ Add LoRA" button opens a DOM overlay search panel (`showLoraSelector`).
+ES modules, no bundler. Files import directly from each other or from ComfyUI's `scripts/`.
 
-### LoRA compatibility check (`lora_loader.py`)
+- **`oli_widgets_common.js`** — shared drawing and drag utilities (constants, hit-test, row background, toggle pill, delete button, disabled overlay, `startRowDrag`, `installDragForeground`). Import from here rather than duplicating.
+- **`oli_lora_loader.js`** — `OliLoraRowWidget`, LoRA search panel, compat colouring via `onExecuted`
+- **`oli_mega_string_list.js`** — `OliStringRowWidget`, per-row connector bullets, `configure` restore logic
 
-`_check_compat(model, lora_path)` reads only the safetensors header (no weights loaded), strips LoRA suffixes to get base key names, then checks them against `comfy.lora.model_lora_keys_unet(model.model, model_map)`. Returns `(bool, reason_str)`. Incompatible LoRAs are skipped silently (logged to console only).
+When adding shared display or interaction logic, put it in `oli_widgets_common.js`.
+
+### Shared Python utilities (`utils.py`)
+
+- `get_model_details(model)` — extracts class name and hidden dim from any ComfyUI model object
+- `get_upstream_label(extra_pnginfo, unique_id, input_name, depth)` — walks the workflow JSON to find the title of an upstream node
+
+## Working conventions
+
+### Git commits
+- Write short, descriptive imperative messages (English)
+- Prefix with `(untested)` when the change hasn't been verified in ComfyUI yet; reword after a successful test
+- Never claim co-authorship in commit messages or anywhere else
+
+### Testing
+No automated tests. Verify by reloading in ComfyUI and exercising the affected node(s) manually.
+If a change is committed before testing, mark it `(untested)` so it's easy to find in the log.
+
+### Documentation
+README.md documents what nodes do for users. CLAUDE.md documents how to work on the code. Keep them focused on their respective roles.
