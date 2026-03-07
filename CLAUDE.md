@@ -48,6 +48,7 @@ When adding shared display or interaction logic, put it in `oli_widgets_common.j
 - Write short, descriptive imperative messages (English)
 - Prefix with `(untested)` when the change hasn't been verified in ComfyUI yet; reword after a successful test
 - Never claim co-authorship in commit messages or anywhere else
+- **Never push to any remote.** Only the user pushes. Never suggest or offer to push either.
 
 ### Testing
 No automated tests. Verify by reloading in ComfyUI and exercising the affected node(s) manually.
