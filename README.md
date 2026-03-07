@@ -2,7 +2,7 @@
 
 A collection of practical ComfyUI utility nodes designed to reduce workflow complexity. Each node solves a specific recurring problem — avoiding VRAM crashes, picking prompts deterministically, filtering incompatible LoRAs, or labelling model pipelines. No external dependencies beyond the standard ComfyUI environment.
 
-[![GitHub Sponsors](https://img.shields.io/badge/GitHub_Sponsors-ea4aaa?style=flat&logo=github-sponsors&logoColor=white)](https://github.com/sponsors/magicoli) [![Buy Me a Coffee](https://img.shields.io/badge/Buy_Me_a_Coffee-ffdd00?style=flat&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/magicoli) [![✨ Tip the Wizard](https://img.shields.io/badge/Tip_the_Wizard-7b2d8b?style=flat&logo=https://magiiic.org/assets/magiiic-logo-v5-icon-white-14x14.png&logoColor=white)](https://magiiic.org/donate/)
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy_Me_a_Coffee-ffdd00?style=flat&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/magicoli) [![✨ Tip the Wizard](https://img.shields.io/badge/Tip_the_Wizard-7b2d8b?style=flat&logo=https://magiiic.org/assets/magiiic-logo-v5-icon-white-14x14.png&logoColor=white)](https://magiiic.org/donate/) [![GitHub Sponsors](https://img.shields.io/badge/GitHub_Sponsors-ea4aaa?style=flat&logo=github-sponsors&logoColor=white)](https://github.com/sponsors/magicoli) 
 
 ## Nodes
 

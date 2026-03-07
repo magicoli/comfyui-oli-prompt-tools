@@ -1,0 +1,120 @@
+{
+	"2": {
+		"inputs": {
+			"enable": true,
+			"delimiter": "\\n",
+			"_disabled_slots": "string2,string4,string8",
+			"string1": {
+				"on": true,
+				"text": "simple string set to on"
+			},
+			"string2": {
+				"on": false,
+				"text": "simple string set to off"
+			},
+			"string3": ["3", 0],
+			"string4": ["4", 0],
+			"string5": ["11", 0],
+			"string8": ["10", 0],
+			"string9": {
+				"on": true,
+				"text": ""
+			}
+		},
+		"class_type": "OliMegaStringList",
+		"_meta": {
+			"title": "Mega String List (Oli)"
+		}
+	},
+	"3": {
+		"inputs": {
+			"String": "string from node set to on"
+		},
+		"class_type": "String",
+		"_meta": {
+			"title": "node input set to on"
+		}
+	},
+	"4": {
+		"inputs": {
+			"String": "string from node set to off"
+		},
+		"class_type": "String",
+		"_meta": {
+			"title": "node input set to off"
+		}
+	},
+	"5": {
+		"inputs": {
+			"preview": "simple string set to on\nstring from node set to on\n1st item from list on\n2nd item from list  on\n3rd item from list  on",
+			"input_string": ["2", 3]
+		},
+		"class_type": "StringPreview",
+		"_meta": {
+			"title": "string preview"
+		}
+	},
+	"6": {
+		"inputs": {
+			"preview": "[\n    \"simple string set to on\",\n    \"string from node set to on\",\n    \"1st item from list on\",\n    \"2nd item from list  on\",\n    \"3rd item from list  on\"\n]",
+			"previewMode": null,
+			"source": ["2", 0]
+		},
+		"class_type": "PreviewAny",
+		"_meta": {
+			"title": "prompt_list preview"
+		}
+	},
+	"7": {
+		"inputs": {
+			"preview": "simple string set to on\n\nstring from node set to on\n\n1st item from list on\n\n2nd item from list  on\n\n3rd item from list  on",
+			"previewMode": null,
+			"source": ["2", 1]
+		},
+		"class_type": "PreviewAny",
+		"_meta": {
+			"title": "prompt_strings previes"
+		}
+	},
+	"8": {
+		"inputs": {
+			"preview": "5",
+			"previewMode": null,
+			"source": ["2", 2]
+		},
+		"class_type": "PreviewAny",
+		"_meta": {
+			"title": "num_strings"
+		}
+	},
+	"10": {
+		"inputs": {
+			"Text1": "1st item from list off",
+			"Text2": "2nd item from list off",
+			"Text3": "3rd item from list off",
+			"Text4": "",
+			"Text5": "",
+			"Text6": "",
+			"Text7": ""
+		},
+		"class_type": "KepStringList",
+		"_meta": {
+			"title": "list node set to off"
+		}
+	},
+	"11": {
+		"inputs": {
+			"Text1": "1st item from list on",
+			"Text2": "2nd item from list on",
+			"Text3": "3rd item from list on",
+			"Text4": "",
+			"Text5": "",
+			"Text6": "",
+			"Text7": ""
+		},
+		"class_type": "KepStringList",
+		"_meta": {
+			"title": "list node set to on"
+		}
+	}
+}
