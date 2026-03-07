@@ -117,12 +117,14 @@ export function drawDisabledOverlay(ctx, posY, width, height) {
 
 /**
  * Start a drag-to-reorder operation for a row widget.
+ * Rows move in real time on each pointermove (live preview).
+ * afterReorder is called once on pointerup (e.g. to rename slots).
  *
  * @param {object}    node          - LiteGraph node
  * @param {object}    widget        - The widget row being dragged
  * @param {Function}  getRowWidgets - () => widget[]  ordered list of draggable rows
- * @param {Function}  [afterReorder]- Optional callback after the reorder is applied
- *                                    (e.g. to rename slots: () => renumberSlots(node))
+ *                                    (should exclude any non-draggable placeholder row)
+ * @param {Function}  [afterReorder]- Optional callback after drop
  */
 export function startRowDrag(node, widget, getRowWidgets, afterReorder) {
 	node._dragWidget   = widget;
@@ -140,7 +142,9 @@ export function startRowDrag(node, widget, getRowWidgets, afterReorder) {
 	function onMove(ev) {
 		if (!node._dragWidget) return;
 		ev.stopPropagation();
-		node._dragCurrentY = toNodeLocalY(ev);
+		const currentY = toNodeLocalY(ev);
+		node._dragCurrentY = currentY;
+		_liveReorder(node, currentY, getRowWidgets);
 		node.setDirtyCanvas(true);
 	}
 
@@ -149,7 +153,7 @@ export function startRowDrag(node, widget, getRowWidgets, afterReorder) {
 		canvasEl.removeEventListener("pointermove", onMove, true);
 		canvasEl.removeEventListener("pointerup",   onUp,   true);
 		if (node._dragWidget) {
-			_finalizeDrag(node, toNodeLocalY(ev), getRowWidgets, afterReorder);
+			afterReorder?.();
 			node._dragWidget   = null;
 			node._dragCurrentY = null;
 		}
@@ -160,7 +164,12 @@ export function startRowDrag(node, widget, getRowWidgets, afterReorder) {
 	canvasEl.addEventListener("pointerup",   onUp,   true);
 }
 
-function _finalizeDrag(node, currentY, getRowWidgets, afterReorder) {
+/**
+ * Move the dragged widget to its live target position in node.widgets.
+ * getRowWidgets() should exclude any non-draggable placeholder at the end
+ * so that the dragged widget always lands before it.
+ */
+function _liveReorder(node, currentY, getRowWidgets) {
 	const dragWidget = node._dragWidget;
 	if (!dragWidget) return;
 
@@ -168,6 +177,7 @@ function _finalizeDrag(node, currentY, getRowWidgets, afterReorder) {
 	const srcIdx = node.widgets.indexOf(dragWidget);
 	if (srcIdx < 0) return;
 
+	// First row whose midpoint is below the cursor becomes the insertion target
 	let insertBefore = null;
 	for (const w of rowWidgets) {
 		if (w === dragWidget) continue;
@@ -179,51 +189,41 @@ function _finalizeDrag(node, currentY, getRowWidgets, afterReorder) {
 
 	node.widgets.splice(srcIdx, 1);
 
-	const dstIdx = insertBefore === null
-		? node.widgets.length
-		: Math.max(0, node.widgets.indexOf(insertBefore));
+	let dstIdx;
+	if (insertBefore !== null) {
+		dstIdx = Math.max(0, node.widgets.indexOf(insertBefore));
+	} else {
+		// Cursor past all known rows: insert just after the last one.
+		// Because getRowWidgets excludes the placeholder, this keeps the
+		// placeholder at the very end of node.widgets.
+		const lastKnown = rowWidgets.filter((w) => w !== dragWidget).pop();
+		dstIdx = lastKnown ? node.widgets.indexOf(lastKnown) + 1 : node.widgets.length;
+	}
 	node.widgets.splice(dstIdx, 0, dragWidget);
-
-	node.setSize([node.size[0], node.computeSize()[1]]);
-	afterReorder?.();
 }
 
 // ── Node-level drag wiring ────────────────────────────────────────────────────
 
 /**
- * Install onDrawForeground to show the blue insertion line while dragging.
+ * Install onDrawForeground to highlight the dragged row during live reorder.
+ * Because the row moves in real time (via _liveReorder), last_y already
+ * reflects its current position — we just draw a coloured border around it.
  * Chains with any existing onDrawForeground on the nodeType.
  *
- * @param {Function} getRowWidgets - (node) => widget[]
+ * The second parameter is kept for API compatibility but is no longer used.
  */
-export function installDragForeground(nodeType, getRowWidgets) {
+export function installDragForeground(nodeType, _unused) {
 	const _prev = nodeType.prototype.onDrawForeground;
 	nodeType.prototype.onDrawForeground = function (ctx) {
 		_prev?.apply(this, arguments);
 		if (!this._dragWidget) return;
 
-		const rowWidgets = getRowWidgets(this);
-		const dragY      = this._dragCurrentY ?? 0;
-
-		let lineY = null;
-		for (const w of rowWidgets) {
-			if (w === this._dragWidget) continue;
-			if (dragY < w.last_y + ROW_H / 2) {
-				lineY = w.last_y;
-				break;
-			}
-		}
-		if (lineY === null) {
-			const last = rowWidgets[rowWidgets.length - 1];
-			lineY = last ? last.last_y + ROW_H : 0;
-		}
-
+		const w = this._dragWidget;
 		ctx.save();
 		ctx.strokeStyle = "#4af";
 		ctx.lineWidth   = 2;
 		ctx.beginPath();
-		ctx.moveTo(PAD_L, lineY);
-		ctx.lineTo(this.size[0] - PAD, lineY);
+		ctx.roundRect(PAD_L, w.last_y + 1, this.size[0] - PAD_L - PAD, ROW_H - 2, 3);
 		ctx.stroke();
 		ctx.restore();
 	};

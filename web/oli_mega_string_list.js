@@ -167,7 +167,7 @@ class OliStringRowWidget {
 		if (event.type === "pointerdown") {
 			if (this._rHandle && hit(pos, ...this._rHandle)) {
 				startRowDrag(node, this,
-					() => _getStringWidgets(node),
+					() => _getStringWidgets(node).filter((w) => !w._isEmpty(node)),
 					() => _renumberStringSlots(node),
 				);
 				return true;
@@ -405,7 +405,7 @@ app.registerExtension({
 				if (inp?.link == null) continue;
 				if (w._rHandle && hit(pos, ...w._rHandle)) {
 					startRowDrag(this, w,
-						() => _getStringWidgets(this),
+						() => _getStringWidgets(this).filter((ww) => !ww._isEmpty(this)),
 						() => _renumberStringSlots(this),
 					);
 					return true;
@@ -416,7 +416,7 @@ app.registerExtension({
 			return _onMouseDown?.call(this, e, pos) ?? false;
 		};
 
-		// Blue insertion line during drag
+		// Highlight dragged row during live reorder
 		installDragForeground(nodeType, _getStringWidgets);
 	},
 });

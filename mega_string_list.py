@@ -137,8 +137,9 @@ def _val_to_strings(val, decoded_delim):
         for item in val:
             out.extend(_val_to_strings(item, decoded_delim))
         return out
-    # Scalar (str, int, …)
-    return [str(val)]
+    # Scalar (str, int, …) — skip blank values (e.g. connected node outputs "")
+    s = str(val)
+    return [s] if s.strip() else []
 
 
 def _ensure_list(val):
