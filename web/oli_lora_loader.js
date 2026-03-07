@@ -4,11 +4,15 @@
  */
 
 import { app } from "../../scripts/app.js";
+import {
+	ROW_H, PAD, PAD_L,
+	hit,
+	drawRowBackground, drawHandle, drawTogglePill, drawDeleteBtn, drawDisabledOverlay,
+	startRowDrag, installDragForeground,
+} from "./oli_widgets_common.js";
 
 const NODE_TYPE = "OliLoraLoader";
-const ROW_H     = LiteGraph.NODE_WIDGET_HEIGHT ?? 20;
 const MIN_W     = 340;
-const PAD       = 8;
 
 // ── Lora list (cached) ────────────────────────────────────────────────────────
 
@@ -25,16 +29,11 @@ async function fetchLoras() {
 	return _loraCache;
 }
 
-// ── Coordinate helpers ────────────────────────────────────────────────────────
-
-function hit(pos, x, y, w, h) {
-	return pos[0] >= x && pos[0] <= x + w && pos[1] >= y && pos[1] <= y + h;
-}
+// ── Coordinate helper ─────────────────────────────────────────────────────────
 
 /** Convert a LiteGraph event to screen { clientX, clientY }. */
 function eventToScreen(e) {
 	if (e?.clientX || e?.clientY) return { clientX: e.clientX, clientY: e.clientY };
-	// Fall back to computing from canvas + graph coordinates
 	if (e?.canvasX !== undefined) {
 		const canvas = app.canvas;
 		const rect   = canvas.canvas.getBoundingClientRect();
@@ -51,46 +50,42 @@ function eventToScreen(e) {
 // ── Lora selector (DOM overlay with search) ───────────────────────────────────
 
 function showLoraSelector(screenX, screenY, loras, callback, current = null) {
-	// Remove any existing selector
 	document.querySelector(".oli-lora-selector")?.remove();
 
 	const panel = document.createElement("div");
 	panel.className = "oli-lora-selector";
 	Object.assign(panel.style, {
-		position:     "fixed",
-		left:         screenX + "px",
-		top:          screenY + "px",
-		background:   "#1e1e1e",
-		border:       "1px solid #555",
-		borderRadius: "4px",
-		zIndex:       "10000",
-		width:        "300px",
-		maxHeight:    "420px",
-		display:      "flex",
+		position:      "fixed",
+		left:          screenX + "px",
+		top:           screenY + "px",
+		background:    "#1e1e1e",
+		border:        "1px solid #555",
+		borderRadius:  "4px",
+		zIndex:        "10000",
+		width:         "300px",
+		maxHeight:     "420px",
+		display:       "flex",
 		flexDirection: "column",
-		boxShadow:    "0 4px 20px rgba(0,0,0,.6)",
+		boxShadow:     "0 4px 20px rgba(0,0,0,.6)",
 	});
 
 	const search = document.createElement("input");
 	search.type        = "text";
 	search.placeholder = "Search LoRAs…";
 	Object.assign(search.style, {
-		padding:    "6px 8px",
-		background: "#111",
-		border:     "none",
+		padding:      "6px 8px",
+		background:   "#111",
+		border:       "none",
 		borderBottom: "1px solid #444",
-		color:      "#ddd",
-		fontSize:   "13px",
-		outline:    "none",
-		flexShrink: "0",
+		color:        "#ddd",
+		fontSize:     "13px",
+		outline:      "none",
+		flexShrink:   "0",
 	});
 	panel.appendChild(search);
 
 	const list = document.createElement("div");
-	Object.assign(list.style, {
-		overflowY: "auto",
-		flexGrow:  "1",
-	});
+	Object.assign(list.style, { overflowY: "auto", flexGrow: "1" });
 	panel.appendChild(list);
 
 	let filteredList = [];
@@ -128,12 +123,12 @@ function showLoraSelector(screenX, screenY, loras, callback, current = null) {
 			const item = document.createElement("div");
 			item.textContent = lora;
 			Object.assign(item.style, {
-				padding:  "4px 10px",
-				cursor:   "pointer",
-				fontSize: "12px",
-				color:    "#ccc",
-				whiteSpace: "nowrap",
-				overflow: "hidden",
+				padding:      "4px 10px",
+				cursor:       "pointer",
+				fontSize:     "12px",
+				color:        "#ccc",
+				whiteSpace:   "nowrap",
+				overflow:     "hidden",
 				textOverflow: "ellipsis",
 			});
 			item.title = lora;
@@ -154,7 +149,6 @@ function showLoraSelector(screenX, screenY, loras, callback, current = null) {
 			list.appendChild(empty);
 		}
 
-		// Auto-select: jump to current value if present, otherwise first item
 		const autoIdx = (current && filteredList.includes(current))
 			? filteredList.indexOf(current)
 			: (filteredList.length > 0 ? 0 : -1);
@@ -162,25 +156,12 @@ function showLoraSelector(screenX, screenY, loras, callback, current = null) {
 	}
 
 	search.addEventListener("input", () => render(search.value));
-
 	search.addEventListener("keydown", (ev) => {
 		switch (ev.key) {
-			case "ArrowDown":
-				ev.preventDefault();
-				selectIdx(selectedIdx + 1);
-				break;
-			case "ArrowUp":
-				ev.preventDefault();
-				selectIdx(selectedIdx - 1);
-				break;
-			case "Enter":
-				ev.preventDefault();
-				confirmSelection();
-				break;
-			case "Escape":
-				ev.preventDefault();
-				closePanel();
-				break;
+			case "ArrowDown": ev.preventDefault(); selectIdx(selectedIdx + 1); break;
+			case "ArrowUp":   ev.preventDefault(); selectIdx(selectedIdx - 1); break;
+			case "Enter":     ev.preventDefault(); confirmSelection();         break;
+			case "Escape":    ev.preventDefault(); closePanel();               break;
 		}
 	});
 
@@ -188,17 +169,13 @@ function showLoraSelector(screenX, screenY, loras, callback, current = null) {
 	document.body.appendChild(panel);
 	search.focus();
 
-	// Clamp to viewport
 	requestAnimationFrame(() => {
 		const r = panel.getBoundingClientRect();
 		if (r.right  > window.innerWidth)  panel.style.left = (window.innerWidth  - r.width  - 6) + "px";
 		if (r.bottom > window.innerHeight) panel.style.top  = (window.innerHeight - r.height - 6) + "px";
 	});
 
-	// Close on outside click
-	const outsideClose = (ev) => {
-		if (!panel.contains(ev.target)) closePanel();
-	};
+	const outsideClose = (ev) => { if (!panel.contains(ev.target)) closePanel(); };
 	setTimeout(() => document.addEventListener("pointerdown", outsideClose, true), 0);
 }
 
@@ -212,9 +189,10 @@ class OliLoraRowWidget {
 		this.last_y  = 0;
 		this.options = {};
 
-		this._value   = { on: true, lora: null, strength: 1.0 };
-		this._compat  = undefined;  // undefined=unknown, true=ok, false=incompatible
+		this._value  = { on: true, lora: null, strength: 1.0 };
+		this._compat = undefined;   // undefined=unknown, true=ok, false=incompatible
 
+		this._rHandle = null;
 		this._rToggle = null;
 		this._rLora   = null;
 		this._rDec    = null;
@@ -230,7 +208,7 @@ class OliLoraRowWidget {
 
 	get value() { return this._value; }
 	set value(v) {
-		if (v === undefined) return;  // ignore accidental resets from LiteGraph widget restore
+		if (v === undefined) return;
 		this._value = (v && typeof v === "object")
 			? { on: true, lora: null, strength: 1.0, ...v }
 			: { on: true, lora: null, strength: 1.0 };
@@ -239,58 +217,29 @@ class OliLoraRowWidget {
 	computeSize(width) { return [width, ROW_H]; }
 
 	draw(ctx, node, width, posY, height) {
-		this.last_y  = posY;
-		const mid    = posY + height / 2;
-		const fade   = this._value.on ? 1.0 : 0.4;
-		const fsize  = Math.round(height * 0.6);
-		const font   = `${fsize}px sans-serif`;
+		this.last_y = posY;
+		const mid   = posY + height / 2;
+		const fade  = this._value.on ? 1.0 : 0.4;
+		const fsize = Math.round(height * 0.6);
+		const font  = `${fsize}px sans-serif`;
 
 		ctx.save();
 
-		// Row background
-		ctx.fillStyle = "#252525";
-		ctx.beginPath();
-		ctx.roundRect(PAD, posY + 1, width - PAD * 2, height - 2, 3);
-		ctx.fill();
+		drawRowBackground(ctx, posY, width, height, "#252525");
 
-		let x = PAD + 4;
+		let x = PAD_L + 4;
 
-		// Toggle — color encodes both on/off and compat status
-		const TW = Math.round(height * 1.4), TH = Math.round(height * 0.6);
-		const tx = x, ty = mid - TH / 2;
-		if (!this._value.on) {
-			ctx.fillStyle = "#555";                   // disabled
-		} else if (this._compat === false) {
-			ctx.fillStyle = "#7a3030";                // incompatible → red
-		} else {
-			ctx.fillStyle = "#4a7a4a";                // enabled (compat ok or unknown)
-		}
-		ctx.beginPath();
-		ctx.roundRect(tx, ty, TW, TH, TH / 2);
-		ctx.fill();
-		ctx.fillStyle = "#ddd";
-		const kx = this._value.on ? tx + TW - TH / 2 - 1 : tx + TH / 2 + 1;
-		ctx.beginPath();
-		ctx.arc(kx, mid, TH / 2 - 1, 0, Math.PI * 2);
-		ctx.fill();
-		this._rToggle = [tx, ty, TW, TH];
-		x += TW + 5;
+		// Drag handle ≡
+		({ rect: this._rHandle, nextX: x } = drawHandle(ctx, x, posY, mid, height, font));
 
-		// Delete button (rightmost)
-		const DW = 14;
-		const dx = width - PAD - 4 - DW;
-		ctx.fillStyle = "#5a2020";
-		ctx.beginPath();
-		ctx.roundRect(dx, posY + 2, DW, height - 4, 2);
-		ctx.fill();
-		ctx.fillStyle = "#f99";
-		ctx.font      = `${fsize - 1}px sans-serif`;
-		ctx.textAlign = "center";
-		ctx.textBaseline = "middle";
-		ctx.fillText("✕", dx + DW / 2, mid);
-		this._rDel = [dx, posY + 2, DW, height - 4];
+		// Toggle pill — compat=false shows red, undefined/true shows green
+		({ rect: this._rToggle, nextX: x } = drawTogglePill(ctx, x, mid, height, this._value.on, this._compat));
 
-		// Strength control
+		// Delete button ✕
+		const { rect: delRect, leftX: dx } = drawDeleteBtn(ctx, width, posY, mid, height, fsize);
+		this._rDel = delRect;
+
+		// Strength control  ◀  0.00  ▶
 		const AW = 13, VW = 38;
 		const sx = dx - 4 - AW - VW - AW;
 
@@ -316,11 +265,12 @@ class OliLoraRowWidget {
 		ctx.fillText("▶", sx + AW + VW + AW / 2, mid);
 		this._rInc = [sx + AW + VW, posY + 2, AW, height - 4];
 
-		// LoRA name
+		// LoRA name label
 		const lx = x, lw = sx - x - 4;
+		ctx.globalAlpha = fade;
 		ctx.fillStyle = LiteGraph.WIDGET_TEXT_COLOR ?? "#ccc";
 		ctx.textAlign = "left";
-		ctx.font      = font;
+		ctx.font = font;
 		let label = this._value.lora ?? "";
 		while (ctx.measureText(label).width > lw - 2 && label.length > 4) {
 			label = label.slice(0, -4) + "…";
@@ -331,22 +281,15 @@ class OliLoraRowWidget {
 		ctx.globalAlpha = 1;
 		ctx.restore();
 
-		// Dim this row when the node's enable input is false.
-		// Done here (end of draw) rather than onDrawForeground so the overlay is
-		// guaranteed to paint on top of the row content regardless of LiteGraph
-		// draw ordering (which varies across ComfyUI versions).
+		// Dim row when node's enable widget is false (drawn after restore so it sits on top)
 		const enableWidget = node.widgets?.find(w => w.name === "enable");
-		if (enableWidget?.value === false) {
-			ctx.save();
-			ctx.fillStyle = "rgba(0,0,0,0.65)";
-			ctx.beginPath();
-			ctx.roundRect(PAD, posY + 1, width - PAD * 2, height - 2, 3);
-			ctx.fill();
-			ctx.restore();
-		}
+		if (enableWidget?.value === false) drawDisabledOverlay(ctx, posY, width, height);
 	}
 
 	mouse(event, pos, node) {
+		// Suppress while another row is being dragged
+		if (node._dragWidget && node._dragWidget !== this) return false;
+
 		if (event.type === "pointerdown") {
 			this._mouseDown  = true;
 			this._dragging   = false;
@@ -360,8 +303,7 @@ class OliLoraRowWidget {
 				const dx = pos[0] - this._dragStartX;
 				if (Math.abs(dx) > 3) {
 					this._dragging = true;
-					this._value.strength =
-						Math.round((this._dragStartS + dx * 0.01) * 100) / 100;
+					this._value.strength = Math.round((this._dragStartS + dx * 0.01) * 100) / 100;
 					node.setDirtyCanvas(true);
 				}
 			}
@@ -372,7 +314,6 @@ class OliLoraRowWidget {
 			const wasDrag = this._dragging;
 			this._mouseDown = false;
 			this._dragging  = false;
-
 			if (!wasDrag) {
 				if      (this._rDel    && hit(pos, ...this._rDel))    { this._delete(node); }
 				else if (this._rToggle && hit(pos, ...this._rToggle)) { this._toggle(node); }
@@ -422,9 +363,7 @@ class OliLoraRowWidget {
 		}, this._value.lora);
 	}
 
-	serializeValue() {
-		return { ...this._value };
-	}
+	serializeValue() { return { ...this._value }; }
 }
 
 // ── Extension ─────────────────────────────────────────────────────────────────
@@ -437,7 +376,6 @@ app.registerExtension({
 
 		const _computeSize = nodeType.prototype.computeSize;
 		nodeType.prototype.computeSize = function () {
-			// Show the enable widget only when there are lora rows
 			const enableWidget = this.widgets?.find(w => w.name === "enable");
 			if (enableWidget) enableWidget.hidden = _getLoraWidgets(this).length === 0;
 			const s = _computeSize ? _computeSize.apply(this, arguments) : [MIN_W, 60];
@@ -445,20 +383,19 @@ app.registerExtension({
 			return s;
 		};
 
-		// onNodeCreated
 		const _onNodeCreated = nodeType.prototype.onNodeCreated;
 		nodeType.prototype.onNodeCreated = function () {
 			_onNodeCreated?.apply(this, arguments);
 			this.serialize_widgets = true;
-			this._loraCounter = 0;
+			this._loraCounter  = 0;
+			this._dragWidget   = null;
+			this._dragCurrentY = null;
 			this._addBtn = this.addWidget("button", "➕ Add LoRA", "", _noop, { serialize: false });
-			// Override callback with the one that receives the event
 			this._addBtn.callback = (v, canvas, node, pos, e) => _openAddSelector(e, node);
 			const s = this.computeSize();
 			this.setSize([Math.max(s[0], MIN_W), s[1]]);
 		};
 
-		// Restore from saved workflow
 		const _configure = nodeType.prototype.configure;
 		nodeType.prototype.configure = function (info) {
 			this.widgets = (this.widgets ?? []).filter(w => !_isLoraWidget(w));
@@ -466,18 +403,14 @@ app.registerExtension({
 			for (const v of info.widgets_values ?? []) {
 				if (v && typeof v === "object" && "lora" in v) _addLoraRow(this, v);
 			}
-			// Restore enable widget value (the only top-level boolean in widgets_values)
 			const savedEnable = (info.widgets_values ?? []).find(v => typeof v === "boolean");
 			if (savedEnable !== undefined) {
 				const enableWidget = this.widgets?.find(w => w.name === "enable");
 				if (enableWidget) enableWidget.value = savedEnable;
 			}
-			// Pass widgets_values: undefined so LiteGraph's configure does NOT attempt
-			// to re-apply widget values by index — we've already restored them above.
 			_configure?.apply(this, [{ ...info, widgets_values: undefined }]);
 		};
 
-		// Update compat dots after execution
 		const _onExecuted = nodeType.prototype.onExecuted;
 		nodeType.prototype.onExecuted = function (message) {
 			_onExecuted?.apply(this, [message]);
@@ -489,12 +422,25 @@ app.registerExtension({
 			this.setDirtyCanvas?.(true);
 		};
 
-		// Right-click context menu on lora rows
+		// onMouseDown — intercept handle before LiteGraph processes the event
+		const _onMouseDown = nodeType.prototype.onMouseDown;
+		nodeType.prototype.onMouseDown = function (e, pos) {
+			for (const w of _getLoraWidgets(this)) {
+				if (w._rHandle && hit(pos, ...w._rHandle)) {
+					startRowDrag(this, w, () => _getLoraWidgets(this));
+					return true;
+				}
+			}
+			return _onMouseDown?.call(this, e, pos) ?? false;
+		};
+
+		// Blue insertion line during drag
+		installDragForeground(nodeType, _getLoraWidgets);
+
+		// Right-click context menu (Move Up / Move Down / Remove)
 		const _getExtraMenuOptions = nodeType.prototype.getExtraMenuOptions;
 		nodeType.prototype.getExtraMenuOptions = function (canvas, options) {
-			// Preserve standard ComfyUI options (Bypass, Clone, Fix nodes, etc.)
-			const base = _getExtraMenuOptions?.apply(this, [canvas, options]) ?? [];
-
+			const base     = _getExtraMenuOptions?.apply(this, [canvas, options]) ?? [];
 			const mouse    = app.canvas.graph_mouse;
 			const localY   = mouse[1] - this.pos[1];
 			const loraWgts = _getLoraWidgets(this);
@@ -538,7 +484,6 @@ app.registerExtension({
 					...base,
 				];
 			}
-
 			return base;
 		};
 	},
@@ -547,28 +492,19 @@ app.registerExtension({
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function _noop() {}
-
-function _isLoraWidget(w) {
-	return w instanceof OliLoraRowWidget;
-}
-
-function _getLoraWidgets(node) {
-	return (node.widgets ?? []).filter(_isLoraWidget);
-}
+function _isLoraWidget(w)  { return w instanceof OliLoraRowWidget; }
+function _getLoraWidgets(node) { return (node.widgets ?? []).filter(_isLoraWidget); }
 
 function _addLoraRow(node, value) {
 	node._loraCounter = (node._loraCounter ?? 0) + 1;
 	const w = new OliLoraRowWidget("lora_" + node._loraCounter);
 	if (value) w.value = value;
-
-	// Insert before the "Add LoRA" button
 	const btnIdx = node._addBtn ? node.widgets.indexOf(node._addBtn) : -1;
 	if (btnIdx >= 0) {
 		node.widgets.splice(btnIdx, 0, w);
 	} else {
 		node.addCustomWidget(w);
 	}
-
 	node.setSize([node.size[0], node.computeSize()[1]]);
 	node.setDirtyCanvas?.(true, true);
 	return w;
