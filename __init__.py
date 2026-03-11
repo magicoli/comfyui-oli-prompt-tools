@@ -8,11 +8,13 @@ from .node_label import NODE_CLASS_MAPPINGS as _m5  # OliNodeLabel
 from .node_label import NODE_DISPLAY_NAME_MAPPINGS as _n5
 from .prompt_line_pick import NODE_CLASS_MAPPINGS as _m1
 from .prompt_line_pick import NODE_DISPLAY_NAME_MAPPINGS as _n1
+from .sanitize_filename import NODE_CLASS_MAPPINGS as _m7  # OliSanitizeFilename
+from .sanitize_filename import NODE_DISPLAY_NAME_MAPPINGS as _n7
 from .video_frame_limit import NODE_CLASS_MAPPINGS as _m2
 from .video_frame_limit import NODE_DISPLAY_NAME_MAPPINGS as _n2
 
-NODE_CLASS_MAPPINGS = {**_m1, **_m2, **_m3, **_m4, **_m5, **_m6}
-NODE_DISPLAY_NAME_MAPPINGS = {**_n1, **_n2, **_n3, **_n4, **_n5, **_n6}
+NODE_CLASS_MAPPINGS = {**_m1, **_m2, **_m3, **_m4, **_m5, **_m6, **_m7}
+NODE_DISPLAY_NAME_MAPPINGS = {**_n1, **_n2, **_n3, **_n4, **_n5, **_n6, **_n7}
 
 WEB_DIRECTORY = "web"
 

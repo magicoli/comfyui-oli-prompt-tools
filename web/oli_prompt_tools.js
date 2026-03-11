@@ -92,6 +92,42 @@ app.registerExtension({
 			};
 		}
 
+		if (nodeData.name === "OliSanitizeFilename") {
+			// _any type inputs don't get auto-widgets, so we create
+			// editable text widgets for filename and folder here.
+			// They are hidden automatically when an input is connected.
+			const onAdded = nodeType.prototype.onAdded;
+			nodeType.prototype.onAdded = function () {
+				onAdded?.apply(this, []);
+				for (const name of ["filename", "folder"]) {
+					if (!this.widgets?.find((w) => w.name === name)) {
+						const w = this.addWidget("text", name, "");
+						// Move to top so they appear above the options
+						const idx = this.widgets.indexOf(w);
+						this.widgets.splice(idx, 1);
+						this.widgets.unshift(w);
+					}
+				}
+			};
+
+			const onExecuted = nodeType.prototype.onExecuted;
+			nodeType.prototype.onExecuted = function (message) {
+				onExecuted?.apply(this, [message]);
+				const repl = message?.repl?.[0];
+				if (repl === undefined) return;
+				const label = `→ ${repl}`;
+				for (const w of this.widgets || []) {
+					if (
+						w.type === "toggle" &&
+						(w.name === "allow_spaces" ||
+							w.name === "allow_slash")
+					) {
+						w.options.off = label;
+					}
+				}
+			};
+		}
+
 		if (nodeData.name === "OliVideoFrameLimit") {
 			const onAdded = nodeType.prototype.onAdded;
 			nodeType.prototype.onAdded = function () {
