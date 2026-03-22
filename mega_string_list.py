@@ -12,7 +12,8 @@ INPUT_IS_LIST = True prevents ComfyUI from batch-expanding LIST outputs
 connected to our string slots — we receive the full list at once and
 insert it at the correct position in the result.
 
-The delimiter (default ", ") splits inline text into multiple list items.
+Items in the text widget are separated by NEWLINES (one item per line).
+The delimiter is only used to JOIN items in the `string` output.
 Escape sequences are decoded at runtime (\\n → real newline, etc.).
 
 Strings equal to "none" (case-insensitive) are filtered from all sources
@@ -22,7 +23,7 @@ Outputs:
   prompt_list    — LIST for PromptLinePick / easy promptList chaining
   prompt_strings — STRING (output list), same format as easy promptList
   num_strings    — INT count of items in the combined list
-  string         — STRING items joined by delimiter
+  string         — STRING items joined by delimiter (single value)
 """
 
 
@@ -76,7 +77,13 @@ class OliMegaStringList:
 
     RETURN_TYPES   = ("LIST", "STRING", "INT", "STRING")
     RETURN_NAMES   = ("prompt_list", "prompt_strings", "num_strings", "string")
-    OUTPUT_IS_LIST = (False, True, False, False)
+    # string output (index 3): OUTPUT_IS_LIST=True + 1-element list return
+    # so ComfyUI iterates once and downstream nodes receive a plain STRING.
+    # (With INPUT_IS_LIST=True, OUTPUT_IS_LIST=False would wrap the value in
+    # a list that some nodes reject as a list instead of a scalar.)
+    # string output (index 3): OUTPUT_IS_LIST=True + 1-element list so downstream
+    # nodes receive a plain STRING scalar, not a list.
+    OUTPUT_IS_LIST = (False, True, False, True)
     FUNCTION       = "execute"
 
     def execute(
@@ -92,7 +99,6 @@ class OliMegaStringList:
         decoded_delim = _decode_escapes(delimiter)
 
         # Disabled slots: comma-separated slot names toggled off in the UI.
-        # Extracted before slot processing so connected rows can also be skipped.
         disabled_raw = _first(_ensure_list(kwargs.pop("_disabled_slots", None)), default="")
         disabled = set(s.strip() for s in disabled_raw.split(",") if s.strip())
 
@@ -103,7 +109,7 @@ class OliMegaStringList:
                 result.extend(_val_to_strings(item, decoded_delim))
             result = _filter_none(result)
             num = len(result)
-            return (result, result, num, decoded_delim.join(result))
+            return (result, result, num, [decoded_delim.join(result)])
 
         result = []
 
@@ -114,23 +120,21 @@ class OliMegaStringList:
         # 2. Per-row string slots — sorted by numeric suffix = widget order
         for key in _sorted_slot_keys(kwargs, "string"):
             if key in disabled:
-                continue  # row toggled off (works for both widget and connected rows)
+                continue
             slot_val = kwargs[key]
-            # slot_val is a list (INPUT_IS_LIST) whose items are either:
-            #   • dict  {on, text}  — unconnected widget value
-            #   • str               — connected STRING output
-            #   • list              — connected LIST output (wrapped one level)
             for val in _ensure_list(slot_val):
                 result.extend(_val_to_strings(val, decoded_delim))
 
         result = _filter_none(result)
         num = len(result)
-        return (result, result, num, decoded_delim.join(result))
+        # string output: 1-element list so OUTPUT_IS_LIST=True passes it as a
+        # single STRING to downstream nodes (see OUTPUT_IS_LIST comment above).
+        return (result, result, num, [decoded_delim.join(result)])
 
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
 
-def _val_to_strings(val, decoded_delim):
+def _val_to_strings(val, decoded_delim=""):
     """Recursively convert any input value to a flat list of strings."""
     if val is None:
         return []
@@ -145,9 +149,26 @@ def _val_to_strings(val, decoded_delim):
         for item in val:
             out.extend(_val_to_strings(item, decoded_delim))
         return out
-    # Scalar (str, int, …) — skip blank values (e.g. connected node outputs "")
+    # Scalar (str, int, …) — skip blank values
     s = str(val)
     return [s] if s.strip() else []
+
+
+def _split_text(text, delimiter):
+    """Split text by delimiter, stripping and filtering empty parts.
+
+    If the text starts with the delimiter (e.g. absolute path '/foo' with
+    delimiter '/'), the whole text is returned as a single item to avoid
+    silently discarding the leading character.
+    """
+    if not delimiter:
+        stripped = text.strip()
+        return [stripped] if stripped else []
+    # Leading delimiter → treat whole value as one item (e.g. absolute path)
+    if text.lstrip().startswith(delimiter):
+        stripped = text.strip()
+        return [stripped] if stripped else []
+    return [p.strip() for p in text.split(delimiter) if p.strip()]
 
 
 def _ensure_list(val):
@@ -183,14 +204,6 @@ def _decode_escapes(s):
         return s.encode("raw_unicode_escape").decode("unicode_escape")
     except Exception:
         return s
-
-
-def _split_text(text, delimiter):
-    """Split text by delimiter, stripping and filtering empty parts."""
-    if not delimiter:
-        stripped = text.strip()
-        return [stripped] if stripped else []
-    return [p.strip() for p in text.split(delimiter) if p.strip()]
 
 
 def _filter_none(lst):

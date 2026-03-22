@@ -19,18 +19,28 @@
  *   - Toggle (enable/disable individual row)
  *   - Delete (✕) — works whether row is connected or not
  *   - Serialise / restore from widgets_values
+ *
+ * Items in the text widget are separated by NEWLINES (one per line).
+ * The delimiter widget only affects the joined `string` output.
  */
 
 import { app } from "../../scripts/app.js";
 import {
-	ROW_H, PAD, PAD_L,
+	ROW_H,
+	PAD,
+	PAD_L,
 	hit,
-	drawRowBackground, drawHandle, drawTogglePill, drawDeleteBtn, drawDisabledOverlay,
-	startRowDrag, installDragForeground,
+	drawRowBackground,
+	drawHandle,
+	drawTogglePill,
+	drawDeleteBtn,
+	drawDisabledOverlay,
+	startRowDrag,
+	installDragForeground,
 } from "./oli_widgets_common.js";
 
 const NODE_TYPE = "OliMegaStringList";
-const MIN_W     = 320;
+const MIN_W = 320;
 
 // ── OliHiddenWidget ───────────────────────────────────────────────────────────
 // Zero-height, invisible widget that holds the comma-separated list of
@@ -40,37 +50,40 @@ const MIN_W     = 320;
 
 class OliHiddenWidget {
 	constructor(name, value) {
-		this.name    = name;
-		this.type    = "custom";
-		this.value   = value ?? "";
+		this.name = name;
+		this.type = "custom";
+		this.value = value ?? "";
 		this.options = {};
-		this.hidden  = true;   // LiteGraph skips drawing and height for hidden widgets
+		this.hidden = true;
 	}
 
-	computeSize(w) { return [w, 0]; }
-
-	serializeValue() { return this.value; }
+	computeSize(w) {
+		return [w, 0];
+	}
+	serializeValue() {
+		return this.value;
+	}
 }
 
 // ── OliStringRowWidget ────────────────────────────────────────────────────────
 
 class OliStringRowWidget {
 	constructor(name) {
-		this.name    = name;
-		this.type    = "custom";
-		this.y       = 0;
-		this.last_y  = 0;
+		this.name = name;
+		this.type = "custom";
+		this.y = 0;
+		this.last_y = 0;
 		this.options = {};
-
 		this._value = { on: true, text: "" };
-
 		this._rHandle = null;
 		this._rToggle = null;
-		this._rText   = null;
-		this._rDel    = null;
+		this._rText = null;
+		this._rDel = null;
 	}
 
-	get value() { return this._value; }
+	get value() {
+		return this._value;
+	}
 	set value(v) {
 		if (v === undefined) return;
 		this._value =
@@ -86,13 +99,15 @@ class OliStringRowWidget {
 		return inp ? inp.link == null : true;
 	}
 
-	computeSize(width) { return [width, ROW_H]; }
+	computeSize(width) {
+		return [width, ROW_H];
+	}
 
 	draw(ctx, node, width, posY, height) {
 		this.last_y = posY;
-		const mid   = posY + height / 2;
+		const mid = posY + height / 2;
 		const fsize = Math.round(height * 0.6);
-		const font  = `${fsize}px sans-serif`;
+		const font = `${fsize}px sans-serif`;
 		const empty = this._isEmpty(node);
 
 		ctx.save();
@@ -101,24 +116,38 @@ class OliStringRowWidget {
 		// colour/style (italic, blue) to convey read-only state instead.
 		ctx.globalAlpha = 1.0;
 
-		drawRowBackground(ctx, posY, width, height, LiteGraph.WIDGET_BGCOLOR ?? "#222");
+		drawRowBackground(
+			ctx,
+			posY,
+			width,
+			height,
+			LiteGraph.WIDGET_BGCOLOR ?? "#222",
+		);
 
 		if (empty) {
 			// Placeholder: just hint text, no controls
-			ctx.fillStyle    = "#444";
-			ctx.font         = font;
-			ctx.textAlign    = "left";
+			ctx.fillStyle = "#444";
+			ctx.font = font;
+			ctx.textAlign = "left";
 			ctx.textBaseline = "middle";
 			const maxW = width - PAD_L - PAD - 8;
 			let phLabel = "← connect string/list or type string";
-			while (ctx.measureText(phLabel).width > maxW && phLabel.length > 4) {
+			while (
+				ctx.measureText(phLabel).width > maxW &&
+				phLabel.length > 4
+			) {
 				phLabel = phLabel.slice(0, -4) + "…";
 			}
 			ctx.fillText(phLabel, PAD_L + 6, mid);
 			this._rHandle = null;
 			this._rToggle = null;
-			this._rDel    = null;
-			this._rText   = [PAD_L + 2, posY + 1, width - PAD_L - PAD - 2, height - 2];
+			this._rDel = null;
+			this._rText = [
+				PAD_L + 2,
+				posY + 1,
+				width - PAD_L - PAD - 2,
+				height - 2,
+			];
 			ctx.restore();
 			return;
 		}
@@ -127,30 +156,51 @@ class OliStringRowWidget {
 		let x = PAD_L + 4;
 
 		// Drag handle ≡
-		({ rect: this._rHandle, nextX: x } = drawHandle(ctx, x, posY, mid, height, font));
+		({ rect: this._rHandle, nextX: x } = drawHandle(
+			ctx,
+			x,
+			posY,
+			mid,
+			height,
+			font,
+		));
 
 		// Toggle pill
-		({ rect: this._rToggle, nextX: x } = drawTogglePill(ctx, x, mid, height, this._value.on));
+		({ rect: this._rToggle, nextX: x } = drawTogglePill(
+			ctx,
+			x,
+			mid,
+			height,
+			this._value.on,
+		));
 
 		// Delete button ✕
-		const { rect: delRect, leftX: dx } = drawDeleteBtn(ctx, width, posY, mid, height, fsize);
+		const { rect: delRect, leftX: dx } = drawDeleteBtn(
+			ctx,
+			width,
+			posY,
+			mid,
+			height,
+			fsize,
+		);
 		this._rDel = delRect;
 
 		// Text content (dimmed when row is toggled off)
 		ctx.globalAlpha = fade;
-		const lx = x, lw = dx - x - 6;
+		const lx = x,
+			lw = dx - x - 6;
 
-		const inp       = node?.inputs?.find((i) => i.name === this.name);
+		const inp = node?.inputs?.find((i) => i.name === this.name);
 		const connected = inp?.link != null;
 
 		if (connected) {
 			// Show the source node's title so the user knows what's connected
-			const link    = app.graph.links[inp.link];
+			const link = app.graph.links[inp.link];
 			const srcNode = link ? app.graph.getNodeById(link.origin_id) : null;
 			const srcTitle = srcNode?.title ?? srcNode?.type ?? "?";
-			ctx.fillStyle    = "#88aacc";
-			ctx.font         = `italic ${fsize}px sans-serif`;
-			ctx.textAlign    = "left";
+			ctx.fillStyle = "#88aacc";
+			ctx.font = `italic ${fsize}px sans-serif`;
+			ctx.textAlign = "left";
 			ctx.textBaseline = "middle";
 			let label = srcTitle;
 			while (ctx.measureText(label).width > lw - 2 && label.length > 4) {
@@ -159,12 +209,17 @@ class OliStringRowWidget {
 			ctx.fillText(label, lx, mid);
 			this._rText = null;
 		} else {
-			const hasText    = (this._value.text ?? "").trim().length > 0;
-			ctx.fillStyle    = hasText ? (LiteGraph.WIDGET_TEXT_COLOR ?? "#ccc") : "#555";
-			ctx.font         = font;
-			ctx.textAlign    = "left";
+			const hasText = (this._value.text ?? "").trim().length > 0;
+			ctx.fillStyle = hasText
+				? (LiteGraph.WIDGET_TEXT_COLOR ?? "#ccc")
+				: "#555";
+			ctx.font = font;
+			ctx.textAlign = "left";
 			ctx.textBaseline = "middle";
-			let label = (this._value.text || "(empty — click to edit)").replace(/\n/g, " ↵ ");
+			let label = (this._value.text || "(empty — click to edit)").replace(
+				/\n/g,
+				" ↵ ",
+			);
 			while (ctx.measureText(label).width > lw - 2 && label.length > 4) {
 				label = label.slice(0, -4) + "…";
 			}
@@ -176,7 +231,8 @@ class OliStringRowWidget {
 
 		// Dim row when node's enable widget is false
 		const enableW = node.widgets?.find((w) => w.name === "enable");
-		if (enableW?.value === false) drawDisabledOverlay(ctx, posY, width, height);
+		if (enableW?.value === false)
+			drawDisabledOverlay(ctx, posY, width, height);
 
 		ctx.restore();
 	}
@@ -186,8 +242,13 @@ class OliStringRowWidget {
 
 		if (event.type === "pointerdown") {
 			if (this._rHandle && hit(pos, ...this._rHandle)) {
-				startRowDrag(node, this,
-					() => _getStringWidgets(node).filter((w) => !w._isEmpty(node)),
+				startRowDrag(
+					node,
+					this,
+					() =>
+						_getStringWidgets(node).filter(
+							(w) => !w._isEmpty(node),
+						),
 					() => _renumberStringSlots(node),
 				);
 				return true;
@@ -199,9 +260,13 @@ class OliStringRowWidget {
 		if (event.type === "pointerup") {
 			if (node._pendingClick === this) {
 				node._pendingClick = null;
-				if      (this._rDel    && hit(pos, ...this._rDel))    { this._delete(node); }
-				else if (this._rToggle && hit(pos, ...this._rToggle)) { this._toggle(node); }
-				else if (this._rText   && hit(pos, ...this._rText))   { this._editText(event, node); }
+				if (this._rDel && hit(pos, ...this._rDel)) {
+					this._delete(node);
+				} else if (this._rToggle && hit(pos, ...this._rToggle)) {
+					this._toggle(node);
+				} else if (this._rText && hit(pos, ...this._rText)) {
+					this._editText(event, node);
+				}
 			}
 			return true;
 		}
@@ -213,7 +278,9 @@ class OliStringRowWidget {
 		const idx = node.widgets.indexOf(this);
 		if (idx >= 0) {
 			node.widgets.splice(idx, 1);
-			const inpIdx = (node.inputs ?? []).findIndex((i) => i.name === this.name);
+			const inpIdx = (node.inputs ?? []).findIndex(
+				(i) => i.name === this.name,
+			);
 			if (inpIdx >= 0) {
 				node.disconnectInput?.(inpIdx);
 				node.removeInput(inpIdx);
@@ -232,20 +299,31 @@ class OliStringRowWidget {
 	}
 
 	_editText(event, node) {
-		app.canvas.prompt("String", this._value.text ?? "", (v) => {
-			this._value.text = v;
-			_syncStringSlots(node);
-			node.setDirtyCanvas(true);
-		}, event);
+		app.canvas.prompt(
+			"String",
+			this._value.text ?? "",
+			(v) => {
+				this._value.text = v;
+				_syncStringSlots(node);
+				node.setDirtyCanvas(true);
+			},
+			event,
+		);
 	}
 
-	serializeValue() { return { ...this._value }; }
+	serializeValue() {
+		return { ...this._value };
+	}
 }
 
 // ── String slot management ────────────────────────────────────────────────────
 
-function _isStringWidget(w)    { return w instanceof OliStringRowWidget; }
-function _getStringWidgets(node) { return (node.widgets ?? []).filter(_isStringWidget); }
+function _isStringWidget(w) {
+	return w instanceof OliStringRowWidget;
+}
+function _getStringWidgets(node) {
+	return (node.widgets ?? []).filter(_isStringWidget);
+}
 
 /**
  * After a drag reorder, rename widget + input names to string1..N in visual
@@ -273,7 +351,6 @@ function _renumberStringSlots(node) {
 		}
 	});
 	node._stringCounter = strWidgets.length;
-	// Slot names changed — rebuild the disabled list with the new names.
 	_updateDisabledSlots(node);
 }
 
@@ -300,14 +377,22 @@ function _addStringRow(node, value) {
 }
 
 /**
+ * Add a string row WIDGET ONLY — no input is created.
+ * Used during configure() so we don't create inputs that conflict with
+ * LiteGraph's own input restoration from info.inputs.
+ */
+function _addStringRowWidgetOnly(node, value) {
+	node._stringCounter = (node._stringCounter ?? 0) + 1;
+	const name = "string" + node._stringCounter;
+	const w = new OliStringRowWidget(name);
+	if (value) w.value = value;
+	node.addCustomWidget(w);
+	return w;
+}
+
+/**
  * Ensure exactly one empty placeholder row at the end.
- * Removes ALL empty rows anywhere in the list, then adds one at the end.
- * This handles legacy workflows that may have empty stubs in the middle.
- *
- * Also cleans up "orphan" string inputs that have no corresponding widget
- * (can appear after configure or certain add/delete sequences) and ensures
- * all remaining string inputs have inp.widget set so LiteGraph positions
- * them inline with their widget row rather than in the default input area.
+ * Also cleans orphan inputs and ensures inp.widget is set for all string inputs.
  */
 function _syncStringSlots(node) {
 	// 1. Remove empty placeholder widgets (and their inputs).
@@ -315,22 +400,25 @@ function _syncStringSlots(node) {
 	for (const w of toRemove) {
 		const widgetIdx = node.widgets.indexOf(w);
 		if (widgetIdx >= 0) node.widgets.splice(widgetIdx, 1);
-		const inpIdx = (node.inputs ?? []).findIndex((inp) => inp.name === w.name);
+		const inpIdx = (node.inputs ?? []).findIndex(
+			(inp) => inp.name === w.name,
+		);
 		if (inpIdx >= 0) node.removeInput(inpIdx);
 	}
 
 	// 2. Remove orphan string inputs (input exists but no widget row).
-	//    These can appear after configure or repeated add/delete operations.
 	const widgetNames = new Set(_getStringWidgets(node).map((w) => w.name));
 	const orphans = (node.inputs ?? [])
 		.map((inp, i) => ({ inp, i }))
-		.filter(({ inp }) => /^string\d+$/.test(inp.name) && !widgetNames.has(inp.name))
-		.sort((a, b) => b.i - a.i);   // remove from end so earlier indices stay valid
+		.filter(
+			({ inp }) =>
+				/^string\d+$/.test(inp.name) && !widgetNames.has(inp.name),
+		)
+		.sort((a, b) => b.i - a.i);
 	for (const { i } of orphans) node.removeInput(i);
 
-	// 3. Ensure every remaining string input has inp.widget so LiteGraph
-	//    positions it at the widget row's Y, not in the top input area.
-	for (const inp of (node.inputs ?? [])) {
+	// 3. Ensure every remaining string input has inp.widget.
+	for (const inp of node.inputs ?? []) {
 		if (/^string\d+$/.test(inp.name) && !inp.widget) {
 			inp.widget = { name: inp.name };
 		}
@@ -343,11 +431,6 @@ function _syncStringSlots(node) {
 	}
 }
 
-/**
- * Rebuild the _disabled_slots hidden widget value from the current on/off
- * state of all non-placeholder string rows.  Must be called whenever the
- * toggle state or slot names change (toggle, delete, reorder, configure).
- */
 function _updateDisabledSlots(node) {
 	const dsw = (node.widgets ?? []).find(
 		(w) => w instanceof OliHiddenWidget && w.name === "_disabled_slots",
@@ -367,33 +450,39 @@ app.registerExtension({
 	async beforeRegisterNodeDef(nodeType, nodeData) {
 		if (nodeData.name !== NODE_TYPE) return;
 
-		// computeSize ─────────────────────────────────────────────────────────
 		const _computeSize = nodeType.prototype.computeSize;
 		nodeType.prototype.computeSize = function () {
-			const s = _computeSize ? _computeSize.apply(this, arguments) : [MIN_W, 60];
+			const s = _computeSize
+				? _computeSize.apply(this, arguments)
+				: [MIN_W, 60];
 			s[0] = Math.max(s[0], MIN_W);
 			return s;
 		};
 
-		// onNodeCreated ───────────────────────────────────────────────────────
 		const _onNodeCreated = nodeType.prototype.onNodeCreated;
 		nodeType.prototype.onNodeCreated = function () {
 			_onNodeCreated?.apply(this, arguments);
 			this.serialize_widgets = true;
 			this._stringCounter = 0;
-			this._dragWidget    = null;
-			this._dragCurrentY  = null;
-			this._pendingClick  = null;
-			this._configuring   = false;
+			this._dragWidget = null;
+			this._dragCurrentY = null;
+			this._pendingClick = null;
+			this._configuring = false;
 
-			// Replace the auto-created STRING widget for _disabled_slots with a
-			// hidden zero-height widget that is invisible but still serialised.
-			const dsIdx = (this.widgets ?? []).findIndex((w) => w.name === "_disabled_slots");
+			const dsIdx = (this.widgets ?? []).findIndex(
+				(w) => w.name === "_disabled_slots",
+			);
 			if (dsIdx >= 0) {
 				const cur = this.widgets[dsIdx];
-				this.widgets.splice(dsIdx, 1, new OliHiddenWidget("_disabled_slots", cur.value ?? ""));
+				this.widgets.splice(
+					dsIdx,
+					1,
+					new OliHiddenWidget("_disabled_slots", cur.value ?? ""),
+				);
 			} else {
-				this.addCustomWidget(new OliHiddenWidget("_disabled_slots", ""));
+				this.addCustomWidget(
+					new OliHiddenWidget("_disabled_slots", ""),
+				);
 			}
 
 			_syncStringSlots(this);
@@ -403,31 +492,25 @@ app.registerExtension({
 		};
 
 		// configure (workflow restore) ─────────────────────────────────────────
+		// Strategy: create string WIDGETS only from widgets_values (no inputs),
+		// then call _configure which lets LiteGraph restore all inputs from
+		// info.inputs (with proper link data). _syncStringSlots reconciles after.
 		const _configure = nodeType.prototype.configure;
 		nodeType.prototype.configure = function (info) {
 			this._configuring = true;
 
-			this.widgets = (this.widgets ?? []).filter((w) => !_isStringWidget(w));
+			// Clear only string widgets; do NOT touch inputs here —
+			// LiteGraph's configure will replace this.inputs from info.inputs.
+			this.widgets = (this.widgets ?? []).filter(
+				(w) => !_isStringWidget(w),
+			);
 			this._stringCounter = 0;
 
-			(this.inputs ?? [])
-				.map((inp, i) => ({ inp, i }))
-				.filter(({ inp }) => /^string\d+$/.test(inp.name))
-				.sort((a, b) => b.i - a.i)
-				.forEach(({ i }) => this.removeInput(i));
-
-			// Parse widgets_values positionally — type-based matching can't
-			// distinguish delimiter from _disabled_slots (both strings).
-			//
-			// Order (fixed, predictable):
-			//   [0] bool   → enable
-			//   [1] string → delimiter
-			//   [2] string → _disabled_slots  (new format; absent in old workflows)
-			//   [n…]       → {on,text} objects = string rows
-			//
-			// Old workflows: [0]=bool [1]=string [2]=object → dsVal defaults to "".
-			const wv  = info.widgets_values ?? [];
-			let   wvi = 0;
+			// Parse widgets_values positionally.
+			// Order: [0] bool=enable  [1] string=delimiter  [2] string=_disabled_slots  [n…] {on,text}
+			// Old workflows: [0] bool  [1] string  [2] {on,text}  (no _disabled_slots)
+			const wv = info.widgets_values ?? [];
+			let wvi = 0;
 
 			if (typeof wv[wvi] === "boolean") {
 				const w = this.widgets?.find((w) => w.name === "enable");
@@ -439,29 +522,42 @@ app.registerExtension({
 				if (w) w.value = wv[wvi];
 				wvi++;
 			}
-			// Second consecutive string = _disabled_slots; only present in new format.
+			// Second consecutive string → _disabled_slots (new format only).
 			if (typeof wv[wvi] === "string") {
-				const dsw = (this.widgets ?? []).find((w) => w instanceof OliHiddenWidget);
+				const dsw = (this.widgets ?? []).find(
+					(w) => w instanceof OliHiddenWidget,
+				);
 				if (dsw) dsw.value = wv[wvi];
 				wvi++;
 			}
+			// Create widgets ONLY — inputs are restored by _configure below.
 			for (let j = wvi; j < wv.length; j++) {
 				const v = wv[j];
-				if (v && typeof v === "object" && "text" in v) _addStringRow(this, v);
+				if (v && typeof v === "object" && "text" in v) {
+					_addStringRowWidgetOnly(this, v);
+				}
 			}
 
+			// LiteGraph configure: replaces this.inputs from info.inputs (with links).
 			_configure?.apply(this, [{ ...info, widgets_values: undefined }]);
 
 			this._configuring = false;
+
+			// Reconcile widgets ↔ inputs: set inp.widget, clean up orphans,
+			// add placeholder. Connected-but-empty rows survive because
+			// inp.link is now properly set from the restored inputs.
 			_syncStringSlots(this);
-			// _disabled_slots was restored above; recompute from row on/off state
-			// so the hidden widget stays consistent with what Python will receive.
 			_updateDisabledSlots(this);
 		};
 
-		// onConnectionsChange — keep placeholder slot in sync ─────────────────
 		const _onConnectionsChange = nodeType.prototype.onConnectionsChange;
-		nodeType.prototype.onConnectionsChange = function (type, index, connected, link, ioSlot) {
+		nodeType.prototype.onConnectionsChange = function (
+			type,
+			index,
+			connected,
+			link,
+			ioSlot,
+		) {
 			_onConnectionsChange?.apply(this, arguments);
 			if (type !== LiteGraph.INPUT) return;
 			if (this._configuring) return;
@@ -470,13 +566,17 @@ app.registerExtension({
 
 			if (!connected) {
 				const w = (this.widgets ?? []).find(
-					(ww) => ww instanceof OliStringRowWidget && ww.name === inp.name,
+					(ww) =>
+						ww instanceof OliStringRowWidget &&
+						ww.name === inp.name,
 				);
 				if (w && !(w._value.text ?? "").trim()) {
 					const self = this;
 					const slotName = inp.name;
 					setTimeout(() => {
-						const ii = (self.inputs ?? []).findIndex((s) => s.name === slotName);
+						const ii = (self.inputs ?? []).findIndex(
+							(s) => s.name === slotName,
+						);
 						if (ii >= 0 && self.inputs[ii].link != null) return;
 						const wi = (self.widgets ?? []).indexOf(w);
 						if (wi >= 0) self.widgets.splice(wi, 1);
@@ -498,27 +598,35 @@ app.registerExtension({
 			}
 		};
 
-		// onMouseDown — intercept connected-row controls BEFORE LiteGraph's
-		// slot-click handler (which runs after onMouseDown but before widget.mouse()).
 		const _onMouseDown = nodeType.prototype.onMouseDown;
 		nodeType.prototype.onMouseDown = function (e, pos) {
 			for (const w of _getStringWidgets(this)) {
 				const inp = (this.inputs ?? []).find((i) => i.name === w.name);
 				if (inp?.link == null) continue;
 				if (w._rHandle && hit(pos, ...w._rHandle)) {
-					startRowDrag(this, w,
-						() => _getStringWidgets(this).filter((ww) => !ww._isEmpty(this)),
+					startRowDrag(
+						this,
+						w,
+						() =>
+							_getStringWidgets(this).filter(
+								(ww) => !ww._isEmpty(this),
+							),
 						() => _renumberStringSlots(this),
 					);
 					return true;
 				}
-				if (w._rDel    && hit(pos, ...w._rDel))    { w._delete(this); return true; }
-				if (w._rToggle && hit(pos, ...w._rToggle)) { w._toggle(this); return true; }
+				if (w._rDel && hit(pos, ...w._rDel)) {
+					w._delete(this);
+					return true;
+				}
+				if (w._rToggle && hit(pos, ...w._rToggle)) {
+					w._toggle(this);
+					return true;
+				}
 			}
 			return _onMouseDown?.call(this, e, pos) ?? false;
 		};
 
-		// Highlight dragged row during live reorder
 		installDragForeground(nodeType, _getStringWidgets);
 	},
 });
