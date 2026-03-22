@@ -25,10 +25,10 @@ Outputs:
 import re
 import unicodedata
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _flatten_to_str(val, joiner):
     """Convert a str, list, or nested list to a single joined string."""
@@ -42,6 +42,7 @@ def _flatten_to_str(val, joiner):
                 parts.append(s)
         return joiner.join(parts)
     return str(val)
+
 
 def _transliterate_to_ascii(text: str) -> str:
     """Strip diacritics via NFKD decomposition (à→a, é→e, ü→u, ñ→n, etc.).
@@ -67,7 +68,9 @@ def _normalise_backslashes(text):
     - ``\`` followed by any other char → both characters removed
     - Trailing lone ``\`` → removed
     """
-    text = re.sub(r"\\(.)", lambda m: "/" if m.group(1) == "\\" else "", text, flags=re.DOTALL)
+    text = re.sub(
+        r"\\(.)", lambda m: "/" if m.group(1) == "\\" else "", text, flags=re.DOTALL
+    )
     return text.rstrip("\\")
 
 
@@ -149,6 +152,7 @@ def _truncate_bytes(text, max_length, repl):
 # Node
 # ---------------------------------------------------------------------------
 
+
 class OliSanitizeFilename:
     """Sanitize a string for safe use as a filename or file path."""
 
@@ -159,8 +163,22 @@ class OliSanitizeFilename:
         return {
             "required": {},
             "optional": {
-                "filename": (_any, {}),
-                "folder": (_any, {}),
+                "filename": (
+                    "STRING",
+                    {
+                        "multiline": False,
+                        "default": "",
+                        "tooltip": "The filename to sanitize.",
+                    },
+                ),
+                "folder": (
+                    "STRING",
+                    {
+                        "multiline": False,
+                        "default": "",
+                        "tooltip": "The folder path to sanitize.",
+                    },
+                ),
                 "extension": (
                     "STRING",
                     {
@@ -189,7 +207,7 @@ class OliSanitizeFilename:
                         "label_on": "true",
                         "label_off": "→ ascii",
                         "tooltip": "If disabled, diacritics are transliterated via NFKD: "
-                                   "à→a, é→e, ü→u, etc.",
+                        "à→a, é→e, ü→u, etc.",
                     },
                 ),
                 "max_length": (
@@ -200,8 +218,8 @@ class OliSanitizeFilename:
                         "max": 4096,
                         "step": 1,
                         "tooltip": "Max bytes for the filename component (0 = no limit). "
-                                   "Default 240 leaves room for the counter and extension "
-                                   "that save nodes typically append. OS limit is 255 bytes.",
+                        "Default 240 leaves room for the counter and extension "
+                        "that save nodes typically append. OS limit is 255 bytes.",
                     },
                 ),
                 "replacement": (
@@ -209,8 +227,8 @@ class OliSanitizeFilename:
                     {
                         "default": "_",
                         "tooltip": "Character used in place of disallowed characters. "
-                                   "Must be a single non-alphanumeric ASCII character; "
-                                   "invalid values fall back to _.",
+                        "Must be a single non-alphanumeric ASCII character; "
+                        "invalid values fall back to _.",
                     },
                 ),
             },
@@ -223,8 +241,8 @@ class OliSanitizeFilename:
 
     def execute(
         self,
-        filename="",
-        folder="",
+        filename: str = "",
+        folder: str = "",
         extension: str = "",
         allow_spaces: bool = True,
         allow_slash: bool = True,
@@ -249,7 +267,11 @@ class OliSanitizeFilename:
 
         # --- Sanitize filename input ---
         filename = _filter_and_collapse(
-            filename, allow_spaces, allow_slash, allow_unicode, repl,
+            filename,
+            allow_spaces,
+            allow_slash,
+            allow_unicode,
+            repl,
         )
 
         # Split the filename into path components when slashes are kept
@@ -301,5 +323,5 @@ class OliSanitizeFilename:
         }
 
 
-NODE_CLASS_MAPPINGS        = {"OliSanitizeFilename": OliSanitizeFilename}
+NODE_CLASS_MAPPINGS = {"OliSanitizeFilename": OliSanitizeFilename}
 NODE_DISPLAY_NAME_MAPPINGS = {"OliSanitizeFilename": "Sanitize Filename (Oli)"}
