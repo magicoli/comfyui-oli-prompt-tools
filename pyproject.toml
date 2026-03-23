@@ -1,6 +1,6 @@
 [project]
 name = "oli-prompt-tools"
-version = "0.0.1"
+version = "0.1.0"
 description = "A couple of basic tools: Mega Lora Loader, Video Frame Limiter, Seed-based Prompt Line Picker, Model Info, Node Label."
 authors = [
   {name = "Olivier van Helden", email = "olivier@van-helden.net"}
