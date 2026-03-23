@@ -1,0 +1,853 @@
+{
+  "id": "9be2d5c2-beff-459a-9808-746c67ae6701",
+  "revision": 0,
+  "last_node_id": 26,
+  "last_link_id": 25,
+  "nodes": [
+    {
+      "id": 4,
+      "type": "PreviewAny",
+      "pos": [
+        8360,
+        -6840
+      ],
+      "size": [
+        280,
+        112
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "source",
+          "type": "*",
+          "link": 13
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.17.2",
+        "Node name for S&R": "PreviewAny"
+      },
+      "widgets_values": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "id": 3,
+      "type": "PreviewAny",
+      "pos": [
+        8360,
+        -7000
+      ],
+      "size": [
+        280,
+        112
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "source",
+          "type": "*",
+          "link": 12
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.17.2",
+        "Node name for S&R": "PreviewAny"
+      },
+      "widgets_values": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "id": 6,
+      "type": "PreviewAny",
+      "pos": [
+        8360,
+        -6680
+      ],
+      "size": [
+        280,
+        112
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "source",
+          "type": "*",
+          "link": 14
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.17.2",
+        "Node name for S&R": "PreviewAny"
+      },
+      "widgets_values": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "id": 8,
+      "type": "PrimitiveNode",
+      "pos": [
+        7720,
+        -6680
+      ],
+      "size": [
+        210,
+        60
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "BOOLEAN",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "enable_rule"
+          },
+          "links": [
+            16
+          ]
+        }
+      ],
+      "title": "apply_rule",
+      "properties": {
+        "Run widget replace on values": false
+      },
+      "widgets_values": [
+        false
+      ]
+    },
+    {
+      "id": 20,
+      "type": "PreviewAny",
+      "pos": [
+        8360,
+        -6520
+      ],
+      "size": [
+        280,
+        112
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "source",
+          "type": "*",
+          "link": 19
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.17.2",
+        "Node name for S&R": "PreviewAny"
+      },
+      "widgets_values": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "id": 12,
+      "type": "PreviewAny",
+      "pos": [
+        8360,
+        -6360
+      ],
+      "size": [
+        280,
+        112
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "source",
+          "type": "*",
+          "link": 15
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.17.2",
+        "Node name for S&R": "PreviewAny"
+      },
+      "widgets_values": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "id": 21,
+      "type": "PrimitiveNode",
+      "pos": [
+        7720,
+        -6520
+      ],
+      "size": [
+        210,
+        60
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "BOOLEAN",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "enable_rule"
+          },
+          "links": [
+            18
+          ]
+        }
+      ],
+      "title": "apply_rule",
+      "properties": {
+        "Run widget replace on values": false
+      },
+      "widgets_values": [
+        true
+      ]
+    },
+    {
+      "id": 18,
+      "type": "OliConditionalSeed",
+      "pos": [
+        8000,
+        -6360
+      ],
+      "size": [
+        270,
+        126
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "seed",
+          "type": "INT",
+          "widget": {
+            "name": "seed"
+          },
+          "link": 17
+        }
+      ],
+      "outputs": [
+        {
+          "name": "seed",
+          "type": "INT",
+          "links": [
+            15,
+            24
+          ]
+        },
+        {
+          "name": "frozen_seed",
+          "type": "INT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "aux_id": "magicoli/oli-prompt-tools",
+        "ver": "c6c807bcb8d6f99a0a3fa646143fb0bcf06570a5",
+        "Node name for S&R": "OliConditionalSeed"
+      },
+      "widgets_values": [
+        169761298951694,
+        "randomize",
+        false
+      ]
+    },
+    {
+      "id": 23,
+      "type": "OliMegaStringList",
+      "pos": [
+        8720,
+        -6760
+      ],
+      "size": [
+        320,
+        406
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "optional_prompt_list",
+          "shape": 7,
+          "type": "LIST",
+          "link": null
+        },
+        {
+          "name": "string2",
+          "type": "*",
+          "widget": {
+            "name": "string2"
+          },
+          "link": 20
+        },
+        {
+          "name": "string4",
+          "type": "*",
+          "widget": {
+            "name": "string4"
+          },
+          "link": 21
+        },
+        {
+          "name": "string6",
+          "type": "*",
+          "widget": {
+            "name": "string6"
+          },
+          "link": 22
+        },
+        {
+          "name": "string8",
+          "type": "*",
+          "widget": {
+            "name": "string8"
+          },
+          "link": 23
+        },
+        {
+          "name": "string10",
+          "type": "*",
+          "widget": {
+            "name": "string10"
+          },
+          "link": 24
+        }
+      ],
+      "outputs": [
+        {
+          "name": "prompt_list",
+          "type": "LIST",
+          "links": null
+        },
+        {
+          "name": "prompt_strings",
+          "shape": 6,
+          "type": "STRING",
+          "links": null
+        },
+        {
+          "name": "num_strings",
+          "type": "INT",
+          "links": null
+        },
+        {
+          "name": "string",
+          "shape": 6,
+          "type": "STRING",
+          "links": [
+            25
+          ]
+        }
+      ],
+      "properties": {
+        "aux_id": "magicoli/oli-prompt-tools",
+        "ver": "c6c807bcb8d6f99a0a3fa646143fb0bcf06570a5",
+        "Node name for S&R": "OliMegaStringList"
+      },
+      "widgets_values": [
+        true,
+        "\\n",
+        "",
+        {
+          "on": true,
+          "text": "enable=false"
+        },
+        {
+          "on": true,
+          "text": ""
+        },
+        {
+          "on": true,
+          "text": "enable=true"
+        },
+        {
+          "on": true,
+          "text": ""
+        },
+        {
+          "on": true,
+          "text": "input enable=false"
+        },
+        {
+          "on": true,
+          "text": ""
+        },
+        {
+          "on": true,
+          "text": "input enable=true"
+        },
+        {
+          "on": true,
+          "text": ""
+        },
+        {
+          "on": true,
+          "text": "input seed"
+        },
+        {
+          "on": true,
+          "text": ""
+        },
+        {
+          "on": true,
+          "text": ""
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "type": "easy seed",
+      "pos": [
+        7720,
+        -6360
+      ],
+      "size": [
+        210,
+        106
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "seed",
+          "type": "INT",
+          "links": [
+            17
+          ]
+        }
+      ],
+      "title": "Base seed",
+      "properties": {
+        "cnr_id": "comfyui-easy-use",
+        "ver": "1.3.4",
+        "Node name for S&R": "easy seed",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        263495009697321,
+        "fixed",
+        null
+      ],
+      "color": "#d4d4d4",
+      "bgcolor": "#c0c0c0"
+    },
+    {
+      "id": 24,
+      "type": "StringPreview",
+      "pos": [
+        9068.266167382122,
+        -6717.621780116904
+      ],
+      "size": [
+        360,
+        280
+      ],
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "input_string",
+          "type": "STRING",
+          "link": 25
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output_string",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui_stringessentials",
+        "ver": "2.0.9",
+        "Node name for S&R": "StringPreview"
+      },
+      "widgets_values": [
+        "enable=false\n122572639495787\nenable=true\n122572639495787\ninput enable=false\n122572639495787\ninput enable=true\n946089139207067\ninput seed\n946089139207067"
+      ]
+    },
+    {
+      "id": 13,
+      "type": "OliConditionalSeed",
+      "pos": [
+        8000,
+        -7000
+      ],
+      "size": [
+        270,
+        126
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "seed",
+          "type": "INT",
+          "links": [
+            12,
+            20
+          ]
+        },
+        {
+          "name": "frozen_seed",
+          "type": "INT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "aux_id": "magicoli/oli-prompt-tools",
+        "ver": "c6c807bcb8d6f99a0a3fa646143fb0bcf06570a5",
+        "Node name for S&R": "OliConditionalSeed"
+      },
+      "widgets_values": [
+        1108777072628661,
+        "randomize",
+        false
+      ]
+    },
+    {
+      "id": 14,
+      "type": "OliConditionalSeed",
+      "pos": [
+        8000,
+        -6840
+      ],
+      "size": [
+        270,
+        126
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "seed",
+          "type": "INT",
+          "links": [
+            13,
+            21
+          ]
+        },
+        {
+          "name": "frozen_seed",
+          "type": "INT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "aux_id": "magicoli/oli-prompt-tools",
+        "ver": "c6c807bcb8d6f99a0a3fa646143fb0bcf06570a5",
+        "Node name for S&R": "OliConditionalSeed"
+      },
+      "widgets_values": [
+        646252606165611,
+        "randomize",
+        true
+      ]
+    },
+    {
+      "id": 17,
+      "type": "OliConditionalSeed",
+      "pos": [
+        8000,
+        -6680
+      ],
+      "size": [
+        270,
+        126
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "enable_rule",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "enable_rule"
+          },
+          "link": 16
+        }
+      ],
+      "outputs": [
+        {
+          "name": "seed",
+          "type": "INT",
+          "links": [
+            14,
+            22
+          ]
+        },
+        {
+          "name": "frozen_seed",
+          "type": "INT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "aux_id": "magicoli/oli-prompt-tools",
+        "ver": "c6c807bcb8d6f99a0a3fa646143fb0bcf06570a5",
+        "Node name for S&R": "OliConditionalSeed"
+      },
+      "widgets_values": [
+        456782009683928,
+        "randomize",
+        false
+      ]
+    },
+    {
+      "id": 19,
+      "type": "OliConditionalSeed",
+      "pos": [
+        8000,
+        -6520
+      ],
+      "size": [
+        270,
+        126
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "enable_rule",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "enable_rule"
+          },
+          "link": 18
+        }
+      ],
+      "outputs": [
+        {
+          "name": "seed",
+          "type": "INT",
+          "links": [
+            19,
+            23
+          ]
+        },
+        {
+          "name": "frozen_seed",
+          "type": "INT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "aux_id": "magicoli/oli-prompt-tools",
+        "ver": "c6c807bcb8d6f99a0a3fa646143fb0bcf06570a5",
+        "Node name for S&R": "OliConditionalSeed"
+      },
+      "widgets_values": [
+        790060484253941,
+        "randomize",
+        true
+      ]
+    },
+    {
+      "id": 22,
+      "type": "Note",
+      "pos": [
+        7440,
+        -7000
+      ],
+      "size": [
+        240,
+        680
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {},
+      "widgets_values": [
+        "Valeur dans les nodes avant:\n\nenable=false\n762189598570082\nenable=true\n122572639495787\ninput enable=false\n652761081098618\ninput enable=true\n946089139207067\ninput seed\n263495009697321 (caché)\n\nOutput à l'éxecution:\n\nenable=false\n122572639495787\nenable=true\n122572639495787\ninput enable=false\n122572639495787\ninput enable=true\n946089139207067\ninput seed\n946089139207067\n\nValeur dans les nodes après:\n\nenable=false\n1108777072628661\nenable=true\n646252606165611\ninput enable=false\n456782009683928\ninput enable=true\n790060484253941\ninput seed\n263495009697321 (caché)\n\n\n\n"
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    }
+  ],
+  "links": [
+    [
+      12,
+      13,
+      0,
+      3,
+      0,
+      "INT"
+    ],
+    [
+      13,
+      14,
+      0,
+      4,
+      0,
+      "INT"
+    ],
+    [
+      14,
+      17,
+      0,
+      6,
+      0,
+      "INT"
+    ],
+    [
+      15,
+      18,
+      0,
+      12,
+      0,
+      "INT"
+    ],
+    [
+      16,
+      8,
+      0,
+      17,
+      0,
+      "BOOLEAN"
+    ],
+    [
+      17,
+      1,
+      0,
+      18,
+      0,
+      "INT"
+    ],
+    [
+      18,
+      21,
+      0,
+      19,
+      0,
+      "BOOLEAN"
+    ],
+    [
+      19,
+      19,
+      0,
+      20,
+      0,
+      "INT"
+    ],
+    [
+      20,
+      13,
+      0,
+      23,
+      1,
+      "INT"
+    ],
+    [
+      21,
+      14,
+      0,
+      23,
+      2,
+      "INT"
+    ],
+    [
+      22,
+      17,
+      0,
+      23,
+      3,
+      "INT"
+    ],
+    [
+      23,
+      19,
+      0,
+      23,
+      4,
+      "INT"
+    ],
+    [
+      24,
+      18,
+      0,
+      23,
+      5,
+      "INT"
+    ],
+    [
+      25,
+      23,
+      3,
+      24,
+      0,
+      "STRING"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "workflowRendererVersion": "LG",
+    "ds": {
+      "scale": 0.9513987252124655,
+      "offset": [
+        -7348.022968880511,
+        7121.252778974869
+      ]
+    },
+    "frontendVersion": "1.41.20",
+    "VHS_latentpreview": true,
+    "VHS_latentpreviewrate": 0,
+    "VHS_MetadataImage": true,
+    "VHS_KeepIntermediate": true
+  },
+  "version": 0.4
+}

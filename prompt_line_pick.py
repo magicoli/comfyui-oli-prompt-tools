@@ -92,6 +92,7 @@ class OliPromptLinePick:
             },
             "optional": {
                 "optional_prompt_list": ("LIST", {}),
+                "prompts_in": ("LIST", {}),
             },
             "hidden": {
                 "unique_id": "UNIQUE_ID",
@@ -111,8 +112,12 @@ class OliPromptLinePick:
         remove_empty_lines=True,
         uncorrelate=True,
         optional_prompt_list=None,
+        prompts_in=None,
         unique_id=None,
     ):
+        # accept both names for backward compatibility
+        if prompts_in is not None and optional_prompt_list is None:
+            optional_prompt_list = prompts_in
         lines = prompt.split("\n")
 
         if remove_empty_lines:

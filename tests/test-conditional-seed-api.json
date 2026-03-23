@@ -1,0 +1,217 @@
+{
+  "1": {
+    "inputs": {
+      "seed": 263495009697321
+    },
+    "class_type": "easy seed",
+    "_meta": {
+      "title": "Base seed"
+    }
+  },
+  "3": {
+    "inputs": {
+      "preview_markdown": "122572639495787",
+      "preview_text": "122572639495787",
+      "previewMode": null,
+      "source": [
+        "13",
+        0
+      ]
+    },
+    "class_type": "PreviewAny",
+    "_meta": {
+      "title": "Aper\u00e7u de n'importe quel"
+    }
+  },
+  "4": {
+    "inputs": {
+      "preview_markdown": "122572639495787",
+      "preview_text": "122572639495787",
+      "previewMode": null,
+      "source": [
+        "14",
+        0
+      ]
+    },
+    "class_type": "PreviewAny",
+    "_meta": {
+      "title": "Aper\u00e7u de n'importe quel"
+    }
+  },
+  "6": {
+    "inputs": {
+      "preview_markdown": "122572639495787",
+      "preview_text": "122572639495787",
+      "previewMode": null,
+      "source": [
+        "17",
+        0
+      ]
+    },
+    "class_type": "PreviewAny",
+    "_meta": {
+      "title": "Aper\u00e7u de n'importe quel"
+    }
+  },
+  "12": {
+    "inputs": {
+      "preview_markdown": "946089139207067",
+      "preview_text": "946089139207067",
+      "previewMode": null,
+      "source": [
+        "18",
+        0
+      ]
+    },
+    "class_type": "PreviewAny",
+    "_meta": {
+      "title": "Aper\u00e7u de n'importe quel"
+    }
+  },
+  "13": {
+    "inputs": {
+      "control_after_generate": "randomize",
+      "enable_rule": false,
+      "previous_seed": 0,
+      "seed_value": 1108777072628661
+    },
+    "class_type": "OliConditionalSeed",
+    "_meta": {
+      "title": "Conditional Seed (Oli)"
+    }
+  },
+  "14": {
+    "inputs": {
+      "control_after_generate": "randomize",
+      "enable_rule": true,
+      "previous_seed": 0,
+      "seed_value": 646252606165611
+    },
+    "class_type": "OliConditionalSeed",
+    "_meta": {
+      "title": "Conditional Seed (Oli)"
+    }
+  },
+  "17": {
+    "inputs": {
+      "control_after_generate": "randomize",
+      "enable_rule": false,
+      "previous_seed": 0,
+      "seed_value": 456782009683928
+    },
+    "class_type": "OliConditionalSeed",
+    "_meta": {
+      "title": "Conditional Seed (Oli)"
+    }
+  },
+  "18": {
+    "inputs": {
+      "control_after_generate": "randomize",
+      "enable_rule": false,
+      "previous_seed": 0,
+      "seed_value": [
+        "1",
+        0
+      ]
+    },
+    "class_type": "OliConditionalSeed",
+    "_meta": {
+      "title": "Conditional Seed (Oli)"
+    }
+  },
+  "19": {
+    "inputs": {
+      "control_after_generate": "randomize",
+      "enable_rule": true,
+      "previous_seed": 0,
+      "seed_value": 790060484253941
+    },
+    "class_type": "OliConditionalSeed",
+    "_meta": {
+      "title": "Conditional Seed (Oli)"
+    }
+  },
+  "20": {
+    "inputs": {
+      "preview_markdown": "946089139207067",
+      "preview_text": "946089139207067",
+      "previewMode": null,
+      "source": [
+        "19",
+        0
+      ]
+    },
+    "class_type": "PreviewAny",
+    "_meta": {
+      "title": "Aper\u00e7u de n'importe quel"
+    }
+  },
+  "23": {
+    "inputs": {
+      "enable": true,
+      "delimiter": "\\n",
+      "_disabled_slots": "",
+      "string1": {
+        "on": true,
+        "text": "enable=false"
+      },
+      "string2": [
+        "13",
+        0
+      ],
+      "string3": {
+        "on": true,
+        "text": "enable=true"
+      },
+      "string4": [
+        "14",
+        0
+      ],
+      "string5": {
+        "on": true,
+        "text": "input enable=false"
+      },
+      "string6": [
+        "17",
+        0
+      ],
+      "string7": {
+        "on": true,
+        "text": "input enable=true"
+      },
+      "string8": [
+        "19",
+        0
+      ],
+      "string9": {
+        "on": true,
+        "text": "input seed"
+      },
+      "string10": [
+        "18",
+        0
+      ],
+      "string12": {
+        "on": true,
+        "text": ""
+      }
+    },
+    "class_type": "OliMegaStringList",
+    "_meta": {
+      "title": "Mega String List (Oli)"
+    }
+  },
+  "24": {
+    "inputs": {
+      "preview": "enable=false\n122572639495787\nenable=true\n122572639495787\ninput enable=false\n122572639495787\ninput enable=true\n946089139207067\ninput seed\n946089139207067",
+      "input_string": [
+        "23",
+        3
+      ]
+    },
+    "class_type": "StringPreview",
+    "_meta": {
+      "title": "String Preview"
+    }
+  }
+}

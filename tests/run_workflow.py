@@ -5,7 +5,7 @@ Expects a workflow in **API format** (export via Save > Save (API format) in
 ComfyUI with Dev Mode enabled) — not the default LiteGraph workflow format.
 
 Usage:
-    python tmp/run_workflow.py tmp/my-workflow-api.json [--url https://localhost:18188]
+    python tmp/run_workflow.py tmp/my-workflow-api.json [--url https://localhost:8188]
 
 Polls the history endpoint until the prompt completes, then prints every
 STRING output value found in the results.
@@ -15,8 +15,8 @@ import argparse
 import json
 import ssl
 import time
-import urllib.request
 import urllib.error
+import urllib.request
 from pathlib import Path
 
 
@@ -69,7 +69,7 @@ def run(workflow_path, base_url):
         found = False
         for node_id, node_out in outputs.items():
             for key, vals in node_out.items():
-                for v in (vals if isinstance(vals, list) else [vals]):
+                for v in vals if isinstance(vals, list) else [vals]:
                     if isinstance(v, str):
                         print(f"  node {node_id} · {key}: {v!r}")
                         found = True
